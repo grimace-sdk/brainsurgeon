@@ -155,7 +155,7 @@ Brain Control's Debug section writes `debug.txt` and starts or stops Debug Agent
 | `usb`: Sharp's USB serial client, `04dd:9244` | `\Windows\serialusbfn.dll` | `ce-debug --usb`, through libusb |
 | `cdc`: ce-debug's CDC serial driver | `pwsh2-boot/debug/usbserial.dll`, on the release card | `ce-debug`, which finds the only `/dev/cu.usbmodem*` or `/dev/ttyACM*`, or `ce-debug --serial PORT` |
 
-Microsoft's `rndisfn.dll` and `serialusbfn.dll` cannot be shipped, and no Sharp image the profiles recognise has either: the PW-SH2, PW-SB1, PW-SH4, PW-A7300 and PW-G5300 images have only the mass storage client, `usbmsfn.dll`. Their registry names `serialusbfn.dll` for `USBSER_Class`, but the file is only in Sharp's updater image. So the release card uses `cdc` on every model until one of the others is added. ce-debug's CDC driver enumerated on a PW-SH2, but its transfers did not complete and the Brain stopped responding to USB, so `usb` and `rndis` are the tested transports.
+The Brains' own images have only the mass storage client, `usbmsfn.dll`. The release card adds Microsoft's `rndisfn.dll` and `serialusbfn.dll` in `pwsh2-boot/Windows/` ([binaries](../binaries/README.md)), so `auto` picks `rndis`. `usb` and `rndis` are the tested transports; `cdc` is in testing.
 
 Debug Agent switches the Brain's USB port away from mass storage while it runs. Its window shows the transport and how to connect; Hide leaves it in the tray, and Stop switches USB back to mass storage. While requests arrive it keeps the Brain awake.
 
