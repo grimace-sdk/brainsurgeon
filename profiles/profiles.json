@@ -19,34 +19,34 @@
       "file": "brain-display-pwa7300.dll"
     },
     {
-      "url": "https://github.com/grimace-sdk/brain-drivers/releases/download/v0.1.5-alpha/brain-drivers-pwsh2.zip",
-      "sha256": "34fe363d22f9fd7f1134c1bce5c335bd2e85db501260687cba96731fd3c2be6c",
-      "size": 11821,
+      "url": "https://github.com/grimace-sdk/brain-drivers/releases/download/v0.1.6-alpha/brain-drivers-pwsh2.zip",
+      "sha256": "0196f78a1e87ab9850d496d854c48f3a7c59a9113321f092d1891d8828b365de",
+      "size": 11874,
       "directory": "brain-drivers-pwsh2",
       "members": {
-        "board.dll": { "sha256": "281d81acbef7c3160cfd7cb84c084d723fd394af0d84d6c081ca5c48b09506f8", "size": 11264 },
+        "board.dll": { "sha256": "272ccad76e86759ef070cd4e79737aaf5f0cbf93e32220bcf5d306567804f166", "size": 11776 },
         "touchraw.dll": { "sha256": "8207c369faeee4698a52d9ee4b88c9e46aaddae5f87801e75646adb183c97833", "size": 6656 },
         "backlight.dll": { "sha256": "38385fa53ee681007e939b0860fc606f37b710c8c75f1de43622fec56038c66b", "size": 10752 }
       }
     },
     {
-      "url": "https://github.com/grimace-sdk/brain-drivers/releases/download/v0.1.5-alpha/brain-drivers-pwsh4.zip",
-      "sha256": "4fc7ede7bd3a8b7f12702be49653ebb3fd1401ea70cc8653c58e1f6afd387570",
-      "size": 11813,
+      "url": "https://github.com/grimace-sdk/brain-drivers/releases/download/v0.1.6-alpha/brain-drivers-pwsh4.zip",
+      "sha256": "11af3f381364bc42172c4903dd345ee56122ad31b948cfbe70082e56ce875260",
+      "size": 11866,
       "directory": "brain-drivers-pwsh4",
       "members": {
-        "board.dll": { "sha256": "281d81acbef7c3160cfd7cb84c084d723fd394af0d84d6c081ca5c48b09506f8", "size": 11264 },
+        "board.dll": { "sha256": "272ccad76e86759ef070cd4e79737aaf5f0cbf93e32220bcf5d306567804f166", "size": 11776 },
         "touchraw.dll": { "sha256": "3b79721d35796cd84cf1ab399cbc4f5527e28e1e8b408010b306be88a48a3258", "size": 6656 },
         "backlight.dll": { "sha256": "38385fa53ee681007e939b0860fc606f37b710c8c75f1de43622fec56038c66b", "size": 10752 }
       }
     },
     {
-      "url": "https://github.com/grimace-sdk/brain-drivers/releases/download/v0.1.5-alpha/brain-drivers-pwa7300.zip",
-      "sha256": "ba1e8d2f02920153a1187d6cb6382c33bd0b8993d1257a55a523962c074aac79",
-      "size": 21620,
+      "url": "https://github.com/grimace-sdk/brain-drivers/releases/download/v0.1.6-alpha/brain-drivers-pwa7300.zip",
+      "sha256": "0c8fed7f656b3c6336946291a05d57dd4803bdd950ed37a98e28008e50640df3",
+      "size": 21667,
       "directory": "brain-drivers-pwa7300",
       "members": {
-        "board.dll": { "sha256": "dcf49ffc2b928e555b7481f7d4ad23e837b3529e2e33e32ee1408092078f09ac", "size": 11776 },
+        "board.dll": { "sha256": "54ebfd3d72c7aeec62df86f96b3970cc03f12a803c658d29fc64036ff4507081", "size": 12288 },
         "touchpad.dll": { "sha256": "9f06b0b8a3d6d1d73f2c8f26c6c650b3a17ee0ef44eb05cad7658fdda9574541", "size": 8704 },
         "EDNA2_slcd_ST7586.dll": { "sha256": "906905f8bc9d20f0a9024dec899c524ef93f276392786fe3e927acae8920c562", "size": 16896 },
         "backlight.dll": { "sha256": "4b130b4bb0ea8c11b013c215ee191278f5a5e7b2a45780840562d751057f3fca", "size": 11776 }

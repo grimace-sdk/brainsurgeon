@@ -22,7 +22,7 @@ When a recognised image gets its profile, the generator and `make-boot-nkp` add 
 "Profile"="pwsh2"
 "Image"="CE V090, slot B"
 [HKEY_LOCAL_MACHINE\Software\Brain\Modules]
-"board.dll"="brain-drivers v0.1.5-alpha"
+"board.dll"="brain-drivers v0.1.6-alpha"
 "ddraw_mx28.dll"="brain-display v0.1.3-alpha"
 ```
 
