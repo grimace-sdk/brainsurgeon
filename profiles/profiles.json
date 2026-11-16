@@ -1,21 +1,21 @@
 {
   "inputs": [
     {
-      "url": "https://github.com/grimace-sdk/brain-display/releases/download/v0.1.2-alpha/brain-display-pwsh2.dll",
-      "sha256": "b5b8270a4f83e5c5662d0366a11fcd7723186b499face011e573b9d1cb9cba2d",
-      "size": 84992,
+      "url": "https://github.com/grimace-sdk/brain-display/releases/download/v0.1.3-alpha/brain-display-pwsh2.dll",
+      "sha256": "1c08f89c3114264e30546a96b77a45349fbf8c8f27877baf6f05daf95ff63fa7",
+      "size": 85504,
       "file": "brain-display-pwsh2.dll"
     },
     {
-      "url": "https://github.com/grimace-sdk/brain-display/releases/download/v0.1.2-alpha/brain-display-pwsh4.dll",
-      "sha256": "8d144b32e69f8e3179e4fa1933cfc2f7bbb11c8f12ae7e3607256aee8971939b",
-      "size": 74240,
+      "url": "https://github.com/grimace-sdk/brain-display/releases/download/v0.1.3-alpha/brain-display-pwsh4.dll",
+      "sha256": "889ae3026450a4adc63dd2341e7425ee427c98cb8280a867a66b3d80b8f3e63a",
+      "size": 88576,
       "file": "brain-display-pwsh4.dll"
     },
     {
-      "url": "https://github.com/grimace-sdk/brain-display/releases/download/v0.1.2-alpha/brain-display-pwa7300.dll",
-      "sha256": "5a0743b33fbbbbdcea1f8342514a1189564aea2cb3219793cf5f0b76ee7c217b",
-      "size": 89600,
+      "url": "https://github.com/grimace-sdk/brain-display/releases/download/v0.1.3-alpha/brain-display-pwa7300.dll",
+      "sha256": "9ea464adc1d9e9a86ab49c132d6be15d66754ad9580354034e59061e7cae3d65",
+      "size": 90112,
       "file": "brain-display-pwa7300.dll"
     },
     {

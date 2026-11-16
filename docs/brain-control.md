@@ -23,7 +23,7 @@ When a recognised image gets its profile, the generator and `make-boot-nkp` add 
 "Image"="CE V090, slot B"
 [HKEY_LOCAL_MACHINE\Software\Brain\Modules]
 "board.dll"="brain-drivers v0.1.5-alpha"
-"ddraw_mx28.dll"="brain-display v0.1.2-alpha"
+"ddraw_mx28.dll"="brain-display v0.1.3-alpha"
 ```
 
 `Model` is the image's device (PW-SH2, PW-SB1, PW-SH4, PW-A7300 or PW-G5300). `Modules` names each module the profile takes from a release, with that release's repository and tag, read from the pinned input URL. The values are written once into `default.fdf`, so they are always present and match the drivers actually loaded. The board driver has no model information, and Sharp's OEM string has not been recorded on every model.
