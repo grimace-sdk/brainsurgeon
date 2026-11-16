@@ -6,7 +6,7 @@ target=${2:-host}
 mkdir -p "$output"
 output=$(cd "$output" && pwd)
 cd "$here"
-sources="generate.c manifest.c bootnkp.c registry.c records.c romimage.c sha256.c util.c a7300.c"
+sources="generate.c manifest.c bootnkp.c registry.c records.c romimage.c romdll.c peimports.c sha256.c util.c a7300.c"
 warnings="-Wall -Wextra -Werror -Wcast-align -Wshadow -Wstrict-prototypes"
 
 case "$target" in

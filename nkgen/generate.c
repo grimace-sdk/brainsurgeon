@@ -20,10 +20,10 @@ static struct dll_bytes derive_from_rom(struct rom_image *image, const struct pa
 {
     struct rom_spec spec;
     pak_rom_spec(pak, blob, &spec);
-    fail(NKGEN_CHECK_FAILED, "%s: ROM-derived files are not supported yet", spec.module);
-    struct dll_bytes none = { 0, 0 };
-    (void)image;
-    return none;
+    struct dll_bytes dll = extract_rom_dll(image, spec.module, spec.spare_sections);
+    for (uint32_t index = 0; index < spec.redirect_count; index++) dll = redirect_imports(dll, &spec.redirects[index]);
+    patch_dll_bytes(dll, &spec);
+    return dll;
 }
 
 static int find_match(const struct pak *pak, const uint8_t *image, uint32_t image_length, int use_profile, uint8_t digest[32], struct pak_image *match)
