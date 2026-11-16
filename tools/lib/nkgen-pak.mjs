@@ -2,8 +2,8 @@ import { bytesEqual, check, crc32, encodeLatin1, latin1, readU32, toHex, writeU3
 import { parseRegFile } from './registry-edit.mjs';
 
 export const pakMagic = 'NKGENPAK';
-export const pakFormat = 1;
-export const pakHeaderSize = 72;
+export const pakFormat = 2;
+export const pakHeaderSize = 80;
 export const pakChecksumStart = 20;
 
 export const operationKinds = {
@@ -224,6 +224,11 @@ export async function makePak({ definition, skipList, bstart, release, load, rel
     const operations = [];
     const decoder = new TextDecoder();
     const add = (kind, name, bytes) => operations.push([operationKinds[kind], writer.string(name), writer.blob(bytes), 0]);
+    const addCardFile = async (owner, entry) => {
+        check(entry.path.startsWith('pwsh2-boot/') && !entry.path.includes('..'), `${owner} card path ${entry.path} is not under pwsh2-boot/`);
+        if (entry.rom) add('card_file_rom', entry.path, encodeRomSpec(writer, entry.rom));
+        else add('card_file', entry.path, await load(entry.file));
+    };
 
     for (const [profileIndex, profile] of definition.profiles.entries()) {
         for (const image of profile.images) {
@@ -244,13 +249,12 @@ export async function makePak({ definition, skipList, bstart, release, load, rel
             add('word_patch', patch.module, encodeWordPatch(writer, patch));
         }
         if (profile.a7300Display) add('a7300_display', 'a7300-display', await load(profile.a7300Display));
-        for (const entry of profile.cardFiles ?? []) {
-            check(entry.path.startsWith('pwsh2-boot/') && !entry.path.includes('..'), `${profile.id} card path ${entry.path} is not under pwsh2-boot/`);
-            if (entry.rom) add('card_file_rom', entry.path, encodeRomSpec(writer, entry.rom));
-            else add('card_file', entry.path, await load(entry.file));
-        }
+        for (const entry of profile.cardFiles ?? []) await addCardFile(profile.id, entry);
         profiles.push([writer.string(profile.id), firstOperation, operations.length - firstOperation, 0]);
     }
+    const sharedFirstOperation = operations.length;
+    for (const entry of definition.sharedCardFiles ?? []) await addCardFile('shared', entry);
+    const sharedOperationCount = operations.length - sharedFirstOperation;
     const imageHashes = new Set(definition.profiles.flatMap((profile) => profile.images.map((image) => image.sha256)));
     for (const sha256 of skipList.tested_images) check(imageHashes.has(sha256), `Skip list tested image ${sha256} has no profile; the generator only hashes images a profile lists`);
 
@@ -273,7 +277,8 @@ export async function makePak({ definition, skipList, bstart, release, load, rel
     const pak = new Uint8Array(dataOffset);
     pak.set(encodeLatin1(pakMagic), 0);
     pak.set(words([pakFormat, pak.length, 0, releaseString, pakHeaderSize, strings.length, imagesOffset, images.length,
-        profilesOffset, profiles.length, operationsOffset, operations.length, blobsOffset, writer.blobs.length, bstartBlob, skipListBlob]), 8);
+        profilesOffset, profiles.length, operationsOffset, operations.length, blobsOffset, writer.blobs.length, bstartBlob, skipListBlob,
+        sharedFirstOperation, sharedOperationCount]), 8);
     pak.set(strings, pakHeaderSize);
     images.forEach((image, index) => {
         pak.set(image.sha256, imagesOffset + index * imageRecordSize);
@@ -325,6 +330,10 @@ export function readPak(bytes) {
         check(first + count <= operations.length, `Pak profile ${index} operations are out of range`);
         return { id: string(readU32(bytes, base)), operations: operations.slice(first, first + count), flags: readU32(bytes, base + 12) };
     });
+    const [sharedFirst, sharedCount] = [field(16), field(17)];
+    check(sharedFirst + sharedCount <= operations.length, 'Pak shared operations are out of range');
+    const sharedOperations = operations.slice(sharedFirst, sharedFirst + sharedCount);
+    for (const operation of sharedOperations) check(operation.kind === 'card_file' || operation.kind === 'card_file_rom', `Pak shared operation ${operation.name} is not a card file`);
     const images = Array.from({ length: field(7) }, (_, index) => {
         const base = field(6) + index * imageRecordSize;
         const profile = readU32(bytes, base + 36);
@@ -341,6 +350,7 @@ export function readPak(bytes) {
         release: string(field(3)),
         images,
         profiles,
+        sharedOperations,
         blobs,
         bstart: blob(field(14)),
         skipList: decodeSkipList(pak, blob(field(15))),
@@ -356,7 +366,7 @@ export function findPakProfile(pak, imageSha256) {
 
 export function planFromPak(pak, match) {
     const plan = { modules: [], registryEntries: [], wordPatches: [], a7300Display: null, cardFiles: [] };
-    for (const operation of match.profile.operations) {
+    for (const operation of [...match.profile.operations, ...pak.sharedOperations]) {
         const bytes = pak.blob(operation.blob);
         if (operation.kind === 'module_file') plan.modules.push({ name: operation.name, contents: bytes });
         else if (operation.kind === 'module_rom') plan.modules.push({ name: operation.name, rom: decodeRomSpec(pak, bytes) });
@@ -375,9 +385,10 @@ export function describePak(pak) {
     lines.push(`skip list: minimum span ${pak.skipList.minimum_span}, ${pak.skipList.modules.length} modules, ${pak.skipList.files.length} files`);
     for (const sha256 of pak.skipList.tested_images) lines.push(`  tested ${sha256}`);
     for (const image of pak.images) lines.push(`image ${image.sha256} ${image.length} ${pak.profiles[image.profile].id} ${image.device}: ${image.description}`);
-    for (const profile of pak.profiles) {
-        lines.push(`profile ${profile.id}`);
-        for (const operation of profile.operations) {
+    const groups = [...pak.profiles.map((profile) => [`profile ${profile.id}`, profile.operations]), ['shared', pak.sharedOperations]];
+    for (const [heading, operations] of groups) {
+        lines.push(heading);
+        for (const operation of operations) {
             const bytes = pak.blob(operation.blob);
             lines.push(`  ${operation.kind} ${operation.name}: blob ${operation.blob}, ${bytes.length} bytes, crc32 ${crc32(bytes).toString(16).padStart(8, '0')}`);
             if (operation.kind === 'registry') {

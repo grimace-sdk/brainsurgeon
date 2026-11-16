@@ -14,7 +14,7 @@ An image listed in profiles/profiles.json gets that device's drivers and registr
 --build is the folder with bstart.exe, a7300-display.bin and the CE programs (default build/ beside tools/; out/ after sh build.sh out). --bstart overrides bstart.exe.
 --pak takes the profiles, inputs, skip list and bstart.exe from a generator pak (tools/make-nkgen-pak.mjs) in place of the repository and --build.
 --root is the folder holding profiles/, tools/skip-modules.json, inputs/ and binaries/ (default: this repository).
-Sharp-only modules are skipped by default for images the skip list was checked against, and whenever a profile applies, since its drivers load into the skipped space. --no-skip also turns the profile off.
+Sharp-only modules in the skip list are skipped by default, for every image. --no-skip turns skipping off, and with it the profile, since its drivers load into the skipped space.
 --a7300-display adds the PW-A7300 portrait and tearing-effect display patch (A7300 main image only).
 --debug-log adds the kernel debug log hook (ce/debug-log): debug strings are kept in a 64 KB RAM ring for U-Boot to save, at --debug-log-address (default 0x40180000; the PW-SH2 uses 0x401e0000, past EBOOT's splash buffers (0x40100000-0x401d1000)). It must match U-Boot's CONFIG_SHARP_WINCE_DEBUG_LOG_ADDRESS. The A7300 display patch already includes it.
 --replace-module adds DLL as a ROM file named NAME, loaded by U-Boot from modules/NAME next to the bundle into a skipped span, and renames ROM module NAME (last letter of the name becomes _), so the loader picks DLL. Needs skipping on. A NAME that is not in the ROM is added as a new file. It takes the place of a profile module with the same NAME.
@@ -70,7 +70,7 @@ const extra = {
     registryAdditions: options.registry.map((path) => readFileSync(path, 'utf8')),
     wordPatches: options['patch-words'].map((path) => parseWordPatch(readFileSync(path, 'utf8'))),
 };
-const skip = options.skip ? true : options['no-skip'] ? false : 'auto';
+const skip = !options['no-skip'];
 const contents = new Uint8Array(readFileSync(options.image));
 const bstartPath = options.bstart ?? join(build, 'bstart.exe');
 if (!options.pak && !existsSync(bstartPath)) {

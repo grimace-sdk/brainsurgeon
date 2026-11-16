@@ -20,10 +20,10 @@ struct host_log {
 };
 
 static const char *usage =
-    "Usage: nkgen-host --image NK_IMAGE --pak nkgen.pak [--card CARD_DIRECTORY] [--no-profile] [--skip] [--arena-megabytes N] [--quiet]\n"
+    "Usage: nkgen-host --image NK_IMAGE --pak nkgen.pak [--card CARD_DIRECTORY] [--no-profile] [--no-skip] [--arena-megabytes N] [--quiet]\n"
     "\n"
     "Runs the on-device generator on the host: writes boot.nkp, its modules and the profile's card files into CARD_DIRECTORY,\n"
-    "with nkgen.log in the bundle folder. --no-profile makes the bstart-only bundle; --skip turns skipping on for any image.\n";
+    "with nkgen.log in the bundle folder. --no-profile makes the bstart-only bundle; --no-skip turns skipping off, and with it the profile.\n";
 
 static unsigned char *read_whole_file(const char *path, uint32_t *length)
 {
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
     const char *image_path = 0;
     const char *pak_path = 0;
     const char *card = 0;
-    uint32_t flags = 0;
+    uint32_t flags = NKGEN_FLAG_SKIP;
     uint32_t arena_megabytes = DEFAULT_ARENA_MEGABYTES;
     int quiet = 0;
     for (int index = 1; index < argc; index++) {
@@ -119,6 +119,7 @@ int main(int argc, char **argv)
         else if (!strcmp(argument, "--arena-megabytes") && value) arena_megabytes = (uint32_t)strtoul(argv[++index], 0, 10);
         else if (!strcmp(argument, "--no-profile")) flags |= NKGEN_FLAG_NO_PROFILE;
         else if (!strcmp(argument, "--skip")) flags |= NKGEN_FLAG_SKIP;
+        else if (!strcmp(argument, "--no-skip")) flags &= ~NKGEN_FLAG_SKIP;
         else if (!strcmp(argument, "--quiet")) quiet = 1;
         else {
             fputs(usage, strcmp(argument, "--help") ? stderr : stdout);

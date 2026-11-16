@@ -106,6 +106,24 @@ static void add_output(struct buffer *outputs, const char *path, const uint8_t *
     output->crc32 = crc32(data, length);
 }
 
+static void add_card_files(struct buffer *outputs, const struct pak *pak, struct rom_image *image, uint32_t first, uint32_t count)
+{
+    for (uint32_t index = 0; index < count; index++) {
+        struct pak_operation operation = pak_operation(pak, first + index);
+        if (operation.kind != PAK_CARD_FILE && operation.kind != PAK_CARD_FILE_ROM) continue;
+        if (!valid_card_path(operation.name)) fail(NKGEN_BAD_PAK, "Pak card path %s is not under pwsh2-boot/", operation.name);
+        if (operation.kind == PAK_CARD_FILE) {
+            struct pak_blob blob = pak_blob(pak, operation.blob);
+            add_output(outputs, operation.name, blob.data, blob.length);
+            continue;
+        }
+        step_begin(operation.name);
+        struct dll_bytes dll = derive_from_rom(image, pak, operation.blob);
+        add_output(outputs, operation.name, dll.data, dll.length);
+        step_end("%u bytes from the ROM", dll.length);
+    }
+}
+
 static void generate(struct nkgen_call *call)
 {
     struct pak pak;
@@ -123,7 +141,9 @@ static void generate(struct nkgen_call *call)
     int matched = find_match(&pak, call->image, call->image_length, use_profile, call->image_sha256, &match);
     const uint8_t *digest = matched ? call->image_sha256 : 0;
     call->known = matched == 2;
-    call->profile = call->known ? pak_profile(&pak, match.profile).id : "";
+    int skipping = (call->flags & NKGEN_FLAG_SKIP) != 0;
+    int applied = call->known && skipping;
+    call->profile = applied ? pak_profile(&pak, match.profile).id : "";
     log_line("image %u bytes, sha256 %s, identity %08x", call->image_length, digest ? hex_digest(digest) : "not computed", call->identity_crc32);
     if (call->known) {
         log_line("%s %s, profile %s", match.device, match.description, call->profile);
@@ -131,10 +151,11 @@ static void generate(struct nkgen_call *call)
     } else {
         step_end("unknown image");
     }
+    if (call->known && !applied) log_line("note: %s drivers need skipping, so only bstart was added", match.device);
 
     open_image(&image, call->image, call->image_length);
     struct profile_plan plan = { 0 };
-    if (call->known) plan_profile(&pak, &match, &image, &plan);
+    if (applied) plan_profile(&pak, &match, &image, &plan);
 
     struct skip_list skip_list;
     pak_skip_list(&pak, &skip_list);
@@ -142,7 +163,7 @@ static void generate(struct nkgen_call *call)
     struct bundle_request request = { 0 };
     request.image = &image;
     request.image_sha256 = digest;
-    request.skip_forced = call->known || (call->flags & NKGEN_FLAG_SKIP);
+    request.skipping = skipping;
     request.skip_list = &skip_list;
     request.bstart = bstart.data;
     request.bstart_length = bstart.length;
@@ -165,22 +186,10 @@ static void generate(struct nkgen_call *call)
         struct replaced_module *module = &bundle.replaced[index];
         add_output(&outputs, text_format("%s/%s", folder, module->card_path), module->contents, module->length);
     }
-    if (call->known) {
+    if (applied) {
         struct pak_profile profile = pak_profile(&pak, match.profile);
-        for (uint32_t index = 0; index < profile.operation_count; index++) {
-            struct pak_operation operation = pak_operation(&pak, profile.first_operation + index);
-            if (operation.kind != PAK_CARD_FILE && operation.kind != PAK_CARD_FILE_ROM) continue;
-            if (!valid_card_path(operation.name)) fail(NKGEN_BAD_PAK, "Pak card path %s is not under pwsh2-boot/", operation.name);
-            if (operation.kind == PAK_CARD_FILE) {
-                struct pak_blob blob = pak_blob(&pak, operation.blob);
-                add_output(&outputs, operation.name, blob.data, blob.length);
-                continue;
-            }
-            step_begin(operation.name);
-            struct dll_bytes dll = derive_from_rom(&image, &pak, operation.blob);
-            add_output(&outputs, operation.name, dll.data, dll.length);
-            step_end("%u bytes from the ROM", dll.length);
-        }
+        add_card_files(&outputs, &pak, &image, profile.first_operation, profile.operation_count);
+        add_card_files(&outputs, &pak, &image, pak.shared_first_operation, pak.shared_operation_count);
     }
     call->outputs = buffer_items(&outputs);
     call->output_count = outputs.length / sizeof(struct nkgen_output);

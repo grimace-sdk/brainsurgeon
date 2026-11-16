@@ -4,7 +4,8 @@
 
 #include "internal.h"
 
-#define PAK_HEADER_FIELDS 16u
+#define PAK_HEADER_FIELDS 18u
+#define PAK_HEADER_SIZE 80u
 #define BLOB_RECORD_SIZE 12u
 
 static uint64_t random_state = 0x9e3779b97f4a7c15ull;
@@ -101,7 +102,7 @@ static void mutate_pak(unsigned char *pak, uint32_t length)
         set_word(pak, offset, value);
     } else {
         uint32_t changes = 1 + random_below(8);
-        for (uint32_t change = 0; change < changes; change++) pak[72 + random_below(length - 72)] ^= (unsigned char)(1u << random_below(8));
+        for (uint32_t change = 0; change < changes; change++) pak[PAK_HEADER_SIZE + random_below(length - PAK_HEADER_SIZE)] ^= (unsigned char)(1u << random_below(8));
     }
     reseal_pak(pak, length);
 }

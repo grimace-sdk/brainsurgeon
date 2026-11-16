@@ -13,15 +13,14 @@ const filesEntrySize = 28;
 const sectorSize = 512;
 const codeAlignment = 32;
 const align = (value, alignment) => Math.ceil(value / alignment) * alignment;
-export async function makeBootNkp({ contents, slot, bstart, skipList, skip = 'auto', a7300Display = null, debugLog = null, debugLogAddress, moduleReplacements = [], registryAdditions = null, registryEntries = null, wordPatches = [] }) {
+export async function makeBootNkp({ contents, slot, bstart, skipList, skip = true, a7300Display = null, debugLog = null, debugLogAddress, moduleReplacements = [], registryAdditions = null, registryEntries = null, wordPatches = [] }) {
     const source = imageFromDumpOrSlot(contents, slot);
     const bytes = source.bytes;
     const image = openImage(bytes);
     const imageSha256 = await sha256Hex(bytes);
     const notes = [];
     const skipListTested = skipList.tested_images.includes(imageSha256);
-    const skipping = skip === 'auto' ? skipListTested : Boolean(skip);
-    if (skip === 'auto' && !skipListTested) notes.push('skip list has not been checked against this image, so nothing is skipped; turn skipping on for a slightly faster boot');
+    const skipping = Boolean(skip);
 
     const registryStringRecords = (hive, keyPath, valueName, newText) => {
         const file = findFile(image, 'default.fdf');

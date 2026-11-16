@@ -34,7 +34,7 @@ The JS generator stays the reference implementation. A host build of the C gener
 | Path | Contents | Shipped or made |
 | --- | --- | --- |
 | `pwsh2-boot/nkgen.bin` | Generator, ARM binary with a header | Release |
-| `pwsh2-boot/nkgen.pak` | Generator inputs for every profile: manifest, our modules, the A7300 `binaries/pwa7300` files, profile card files, registry additions, word patches, `bstart.exe`, skip list, A7300 display hook | Release |
+| `pwsh2-boot/nkgen.pak` | Generator inputs for every profile: manifest, our modules, the A7300 `binaries/pwa7300` files, profile and shared card files, registry additions, word patches, `bstart.exe`, skip list, A7300 display hook | Release |
 | `pwsh2-boot/nk-CRC/boot.nkp` | Patch bundle. `CRC` is the image identity CRC, 8 lowercase hex digits | Made on the Brain |
 | `pwsh2-boot/nk-CRC/modules/*` | Our drivers and the A7300 `gwes.dll` and `ceshell.dll` (copied out of the pak), the merged `default.fdf`, ROM-derived modules | Made on the Brain |
 | `pwsh2-boot/nk-CRC/cache.txt` | Stamp: what the cache was made from, written last | Made on the Brain |
@@ -43,7 +43,7 @@ The JS generator stays the reference implementation. A host build of the C gener
 | `pwsh2-boot/PROFILE/` | Profile card files: for `pwa7300`, `explorer.exe`, and in `Windows/` `CPLBRAIN.CPL` (ROM-derived), `braincrypt.dll`, `brainras.dll`, `brainsip.dll` | Made on the Brain |
 | `pwsh2-boot/boot-status-MODEL.txt` | Status of the last boot by this U-Boot build that found no cache folder | Made on the Brain |
 
-All other release card files (the U-Boots, `EDSA2CFG.BIN`, `autorotate.exe`, `crashlog.exe`, `pwsh2-boot/Windows/brain-control.cpl`, the launch files) are ours, common to every model, and ship as now.
+Card files every profile needs (`pwsh2-boot/Windows/brain-control.cpl`, `pwsh2-boot/Keymap.exe`, `pwsh2-boot/debug/debugmgr.exe` and `usbserial.dll`) are listed once, in `sharedCardFiles` in `profiles.json`. They are stored once in the pak and are outputs of every generation that applies a profile. All other release card files (the U-Boots, `EDSA2CFG.BIN`, `autorotate.exe`, `crashlog.exe`, the launch files) are ours, common to every model, and ship as now.
 
 Profile card files move out of the shared `pwsh2-boot/Windows/` and `explorer/` into `pwsh2-boot/PROFILE/`, so one model's files never reach another. `profiles.json` changes to match (`pwsh2-boot/pwa7300/Windows/CPLBRAIN.CPL`, `pwsh2-boot/pwa7300/explorer.exe`), for the JS tools too, and bstart copies `pwsh2-boot/PROFILE/Windows/` into `\Windows` after `pwsh2-boot/Windows/`. The A7300 launch file names `\Storage Card\pwsh2-boot\pwa7300\explorer.exe`.
 
@@ -110,14 +110,14 @@ Generator side, mapped to the JS:
 | G1 | `rom-image.mjs` `isImage`, `openImage` | Check `ECEC`, parse ROMHDR, base `0x80200000` |
 | G2 | `profiles.mjs` `findProfile`, `bytes.mjs` `sha256Hex` | Match the image by length, then SHA-256, against the manifest. No length match: no hash needed (every skip-list tested image has a profile) |
 | G3 | `profiles.mjs` `deriveFromRom`, `rom-dll.mjs`, `pe-imports.mjs` | Make ROM-derived modules and card files: extract a relocatable DLL, redirect imports, check-and-patch bytes |
-| G4 | `boot-nkp.mjs` `skipSpans` | Skip spans from the skip list, merged, aligned, checked against kept regions |
+| G4 | `boot-nkp.mjs` `skipSpans` | Skip spans from the skip list, merged, aligned, checked against kept regions. Only names present in the image are skipped. On for every image (`NKGEN_FLAG_SKIP`); without it, no skips and no profile |
 | G5 | `registry-edit.mjs`, `flat-registry.mjs` | Read `default.fdf`, set `init\Launch50`, apply profile registry and the `Software\Brain` model keys, write it back |
 | G6 | `boot-nkp.mjs` `appendFileRecords`, `bstartPatch` | `bstart` section: append `bstart.exe` and the 4 KB `bootstat.txt` slot, reserve file entries, rewrite `Launch50` in place |
 | G7 | `a7300-display.mjs`, `appendCodeRecords` | A7300 display hook section |
 | G8 | `moduleReplacementPatch`, `fileRepointPatch` | One section per module: carve a span, add or repoint a file entry, rename Sharp's module, `load` line |
 | G9 | `word-patch.mjs` | One section per word patch file |
 | G10 | `nk-patch.mjs` `makePatchRecords`, `formatPatch` | Format records (64-byte runs, lowercase unpadded hex) and the bundle text |
-| G11 | `profiles.mjs` `makeCard` | Output list: `boot.nkp`, `modules/*`, the profile's card files (from the pak or ROM-derived). Outputs copied from the pak point into it, so they take no arena space |
+| G11 | `profiles.mjs` `makeCard` | Output list: `boot.nkp`, `modules/*`, the profile's card files (from the pak or ROM-derived), then the shared card files. Outputs copied from the pak point into it, so they take no arena space |
 
 ## C Port Plan
 
@@ -170,9 +170,9 @@ About 3,500 C lines for about 1,600 JS lines, in about 14 files under `nkgen/`. 
 Little-endian, all offsets from the start of the file, all records 4-byte aligned.
 
 ```
-header (72 bytes)
+header (80 bytes)
   magic            "NKGENPAK"
-  format           u32   1
+  format           u32   2
   length           u32   whole file
   crc32            u32   of bytes 20 to length
   release          u32   string offset: brainsurgeon version
@@ -183,6 +183,7 @@ header (72 bytes)
   blobs            u32   offset, u32 count
   bstart           u32   blob index
   skip_list        u32   blob index
+  shared           u32   first operation, u32 count: card files for every profile
 
 image (48 bytes)
   sha256           32 bytes
@@ -222,7 +223,7 @@ Strings are ASCII and zero-terminated. Equal blobs are stored once. Structured b
 
 Each profile has one `registry` operation: its `.reg` files, parsed at release, then the model keys.
 
-Operation order follows `profiles.json`, which fixes the order of sections and span carving and so the output bytes.
+Operation order follows `profiles.json`, which fixes the order of sections and span carving and so the output bytes. Shared operations follow the last profile's and are `card_file` or `card_file_rom` only.
 
 The pak is about 1.8 MB, most of it the A7300's `gwes.dll` (766 KB), `ceshell.dll` (293 KB) and `explorer.exe` (289 KB). With them in the pak the release card is turnkey: nothing has to be copied from the release's `binaries/` by hand.
 
@@ -483,7 +484,7 @@ Brain Control's About page shows `Image`, `Device`, `Bundle`, `Generator`, `Rele
 | No `nkgen.bin` or `nkgen.pak` | Continue the [lookup](#bundle-lookup): `nk-LENGTH/boot.nkp`, `pwsh2-boot/boot.nkp`, unpatched CE |
 | Header, CRC or ABI check fails | Same, with the reason in the status and `nkgen.log` |
 | Identity range unreadable or implausible (no `ECEC`, tables over 64 KB) | No generation; continue the lookup from `nk-LENGTH` |
-| Unknown image | Best effort: the generator returns the bstart-only bundle the page makes for unknown images (no skips, no registry copy). U-Boot caches and boots it, with `image=unknown` in the status. `dump-nk` stays on the release card, so the image can be copied for the page or a bug report. A later release that knows the image has a new pak CRC, so it regenerates |
+| Unknown image | Best effort: the generator returns the bstart-only bundle the page makes for unknown images (skips, no registry copy, a `skip` step noting the skip list was checked against a different image). U-Boot caches and boots it, with `image=unknown` in the status. `dump-nk` stays on the release card, so the image can be copied for the page or a bug report. A later release that knows the image has a new pak CRC, so it regenerates |
 | A check fails (expected bytes differ, span too small) | Error with the JS message. No cache written; continue the lookup |
 | Arena full | Error; fall back. The host build's high-water report should make this unreachable |
 | Card full or write error | Files written so far are deleted, no `cache.txt`. This boot continues from the in-RAM outputs; the next boot tries again |
@@ -493,7 +494,7 @@ Brain Control's About page shows `Image`, `Device`, `Bundle`, `Generator`, `Rele
 
 ## Equivalence Testing
 
-`tools/check-nkgen.sh BUILD` makes a pak from the repository and `BUILD`, builds `nkgen-host`, and runs both generators on each image in four modes (default, `--no-profile`, `--skip`, both):
+`tools/check-nkgen.sh BUILD` makes a pak from the repository and `BUILD`, builds `nkgen-host`, and runs both generators on each image in four modes (default, `--no-profile`, `--no-skip`, both):
 
 1. `node tools/make-boot-nkp.mjs --image IMAGE --build BUILD --folder crc --card JS_CARD`
 2. `nkgen-host --image IMAGE --pak nkgen.pak --card C_CARD`
@@ -583,9 +584,9 @@ Milestones 2 to 4 are most of the work. Each ends in a passing equivalence run, 
 | A7300 `binaries/pwa7300` | In the pak, so the card is turnkey |
 | Page and CLI folder | `nk-CRC`, after a one-release transition; `nk-LENGTH` stays readable |
 | Dual-model card | One generator and pak; caches, logs and status keyed by image; profile card files in `pwsh2-boot/PROFILE/`; boot status to bstart through a RAM slot |
+| Skipping | On for every image, profiled or not: the skip list is by module name and only names present in the image are skipped. U-Boot always passes `NKGEN_FLAG_SKIP`; the page and CLI default to the same. For an image the skip list was not checked against, the `skip` step says so |
+| Shared card files | `sharedCardFiles` in `profiles.json`, one list for every profile, stored once in the pak |
 
 ## Open Questions
 
 1. The `bootstat.txt` slot does not fit the PW-SH4. Its image has 164 bytes between `physlast` and `ulRAMStart`. The `bstart` section's file entries (`bstart.exe` and four reserved) and name take 152; one more entry needs 180. The slot is left out of the JS and the generator until this is decided.
-2. Unknown images need skipping. `bstart.exe` (19,456 bytes) does not fit below `ulRAMStart` on the PW-SH2 V120 image (16,708 bytes free) or on the PW-SH4 image with no profile (164 bytes), so the bstart-only bundle with no skips is refused. With `--skip` (`NKGEN_FLAG_SKIP`) both images get a bundle. The ED-SA1 V200 image has room.
-3. Every profile lists the common card files (`pwsh2-boot/Windows/brain-control.cpl`, `pwsh2-boot/Keymap.exe`, `pwsh2-boot/debug/`), so they are in the generator's outputs too. U-Boot can write them, skip them, or the profiles can drop them once the release card carries them.

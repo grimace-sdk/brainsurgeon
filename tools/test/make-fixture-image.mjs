@@ -232,10 +232,10 @@ const definition = {
             cardFiles: [
                 { path: 'pwsh2-boot/fixture/Windows/card.txt', file: 'build/card.txt' },
                 { path: 'pwsh2-boot/fixture/Windows/derived.dll', rom: { module: 'source.dll', spareSections: 1, redirectImports: [{ from: 'COREDLL.dll', to: 'shim.dll', imports: { 20: 'ShimTwenty' } }] } },
-                { path: 'pwsh2-boot/Windows/common.txt', file: 'build/card.txt' },
             ],
         },
     ],
+    sharedCardFiles: [{ path: 'pwsh2-boot/Windows/common.txt', file: 'build/card.txt' }],
 };
 const wordPatch = {
     module: 'patched.dll',

@@ -28,7 +28,7 @@ const resources = Promise.all([
 
 let currentFile = null;
 let currentCard = null;
-let skipChoice = 'auto';
+let skipChoice = true;
 
 const download = (name, contents) => {
     const link = document.createElement('a');
@@ -104,7 +104,7 @@ const makeFromCurrentFile = async () => {
 const chooseFile = (file) => {
     if (!file) return;
     currentFile = file;
-    skipChoice = 'auto';
+    skipChoice = true;
     makeFromCurrentFile();
 };
 

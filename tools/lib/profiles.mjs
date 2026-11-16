@@ -81,7 +81,7 @@ export async function planFromDefinition(definition, match, readFile) {
     const wordPatches = [];
     for (const path of profile.wordPatches ?? []) wordPatches.push(parseWordPatch(decoder.decode(await load(path))));
     const cardFiles = [];
-    for (const entry of profile.cardFiles ?? []) cardFiles.push({ path: entry.path, ...await fromEntry(entry) });
+    for (const entry of [...profile.cardFiles ?? [], ...definition.sharedCardFiles ?? []]) cardFiles.push({ path: entry.path, ...await fromEntry(entry) });
     return {
         modules,
         registryTexts: [...registryTexts, modelRegistry(definition, match)],
@@ -91,7 +91,7 @@ export async function planFromDefinition(definition, match, readFile) {
     };
 }
 
-export async function makeCard({ contents, slot, bstart, skipList, skip = 'auto', definition, readFile, useProfile = true, extra = {}, folder = 'length' }) {
+export async function makeCard({ contents, slot, bstart, skipList, skip = true, definition, readFile, useProfile = true, extra = {}, folder = 'length' }) {
     const source = imageFromDumpOrSlot(contents, slot);
     const imageSha256 = await sha256Hex(source.bytes);
     const match = useProfile ? findProfile(definition, imageSha256) : null;
@@ -99,7 +99,7 @@ export async function makeCard({ contents, slot, bstart, skipList, skip = 'auto'
     return makeCardFromPlan({ source, imageSha256, bstart, skipList, skip, match, plan, extra, folder });
 }
 
-export async function makeCardFromPak({ contents, slot, pak, skip = 'auto', useProfile = true, extra = {}, folder = 'length' }) {
+export async function makeCardFromPak({ contents, slot, pak, skip = true, useProfile = true, extra = {}, folder = 'length' }) {
     const decoded = readPak(pak);
     const source = imageFromDumpOrSlot(contents, slot);
     const imageSha256 = await sha256Hex(source.bytes);
@@ -108,7 +108,7 @@ export async function makeCardFromPak({ contents, slot, pak, skip = 'auto', useP
     return makeCardFromPlan({ source, imageSha256, bstart: decoded.bstart, skipList: decoded.skipList, skip, match, plan, extra, folder });
 }
 
-export async function makeCardFromPlan({ source, imageSha256, bstart, skipList, skip = 'auto', match, plan, extra = {}, folder = 'length' }) {
+export async function makeCardFromPlan({ source, imageSha256, bstart, skipList, skip = true, match, plan, extra = {}, folder = 'length' }) {
     const notes = [];
     const applied = match && skip !== false;
     if (match && !applied) notes.push(`${match.device} drivers need skipping, so only bstart was added`);

@@ -36,8 +36,8 @@ for image in "$NK_IMAGES"/*.bin; do
     for mode in "" "--no-profile"; do
         label="$name${mode:+ $mode}"
         tag=$(echo "$label" | tr ' ' '_')
-        flag=0
-        [ -n "$mode" ] && flag=1
+        flag=2
+        [ -n "$mode" ] && flag=3
         run=$work/arm/$tag
         mkdir -p "$run/raw" "$run/card"
         host_status=0

@@ -2,6 +2,7 @@
 
 #define PAK_MAGIC "NKGENPAK"
 #define PAK_CHECKSUM_START 20u
+#define PAK_HEADER_SIZE 80u
 #define IMAGE_RECORD_SIZE 48u
 #define PROFILE_RECORD_SIZE 16u
 #define OPERATION_RECORD_SIZE 16u
@@ -34,7 +35,7 @@ void pak_open(struct pak *pak, const uint8_t *data, uint32_t length)
     fill_bytes(pak, 0, sizeof(*pak));
     pak->data = data;
     pak->length = length;
-    if (length < NKGEN_HEADER_SIZE || !bytes_equal(data, PAK_MAGIC, 8)) fail(NKGEN_BAD_PAK, "Not a generator pak (no NKGENPAK magic)");
+    if (length < PAK_HEADER_SIZE || !bytes_equal(data, PAK_MAGIC, 8)) fail(NKGEN_BAD_PAK, "Not a generator pak (no NKGENPAK magic)");
     if (pak_word(pak, 8) != NKGEN_PAK_FORMAT) fail(NKGEN_BAD_PAK, "Pak format %u is not %u", pak_word(pak, 8), NKGEN_PAK_FORMAT);
     if (pak_word(pak, 12) != length) fail(NKGEN_BAD_PAK, "Pak length %u differs from the file's %u", pak_word(pak, 12), length);
     pak->crc32 = pak_word(pak, 16);
@@ -51,6 +52,8 @@ void pak_open(struct pak *pak, const uint8_t *data, uint32_t length)
     pak->blob_count = pak_word(pak, 60);
     pak->bstart_blob = pak_word(pak, 64);
     pak->skip_list_blob = pak_word(pak, 68);
+    pak->shared_first_operation = pak_word(pak, 72);
+    pak->shared_operation_count = pak_word(pak, 76);
     if ((uint64_t)pak->strings_offset + pak->strings_length > length || !pak->strings_length || data[pak->strings_offset + pak->strings_length - 1] != 0) {
         fail(NKGEN_BAD_PAK, "Pak string table is outside the pak or unterminated");
     }
@@ -70,6 +73,15 @@ void pak_open(struct pak *pak, const uint8_t *data, uint32_t length)
         struct pak_operation operation = pak_operation(pak, index);
         if (operation.kind < PAK_MODULE_FILE || operation.kind > PAK_CARD_FILE_ROM) {
             fail(NKGEN_BAD_PAK, "Pak operation %u has unknown kind %u", index, operation.kind);
+        }
+    }
+    if ((uint64_t)pak->shared_first_operation + pak->shared_operation_count > pak->operation_count) {
+        fail(NKGEN_BAD_PAK, "Pak shared operations are out of range");
+    }
+    for (uint32_t index = 0; index < pak->shared_operation_count; index++) {
+        struct pak_operation operation = pak_operation(pak, pak->shared_first_operation + index);
+        if (operation.kind != PAK_CARD_FILE && operation.kind != PAK_CARD_FILE_ROM) {
+            fail(NKGEN_BAD_PAK, "Pak shared operation %s is not a card file", operation.name);
         }
     }
     for (uint32_t index = 0; index < pak->profile_count; index++) pak_profile(pak, index);

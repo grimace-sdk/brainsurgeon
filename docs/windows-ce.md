@@ -60,12 +60,12 @@ You can now delete `nk-slot-*.bin` from the card, or keep it to regenerate `boot
 
 | Patch | Effect |
 | --- | --- |
-| `skip` lines | U-Boot does not read Sharp's dictionary, handwriting, speech and update modules, which nothing else uses: about half of the image. Only for tested images unless you turn it on. |
+| `skip` lines | U-Boot does not read Sharp's dictionary, handwriting, speech and update modules, which nothing else uses: about half of the image. On unless you turn it off. |
 | `bstart` | Adds `bstart.exe` to the image and starts it instead of Sharp's shell |
 | `module NAME` | Recognised Brains: loads a driver from `modules/` beside `boot.nkp` in place of Sharp's, or as a new one |
 | `words NAME` | PW-SH2 and PW-SB1: makes Sharp's sound driver follow the system volume |
 
-Skipping is only on by default for CE images it has been tested with, and for recognised Brains, whose drivers load into the skipped space. For other images the patch maker leaves it off and says so; you can turn it on (`--skip` on the command line) for a slightly faster boot, and turn it off again (`--no-skip`) if CE then misbehaves.
+Skipping is on by default for every image: the skip list is by module name, and recognised Brains need it, since their drivers load into the skipped space. Only names present in the image are skipped. For an image the skip list was not checked against, the patch maker says so; turn skipping off (`--no-skip` on the command line) if CE then misbehaves.
 
 Make every Brain's bundle with the same release. bstart comes from the bundle, and a newer bstart moves files an older one still expects (see [Files for \Windows](#files-for-windows)).
 

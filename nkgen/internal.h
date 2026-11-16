@@ -315,7 +315,7 @@ struct skip_list {
 struct bundle_request {
     struct rom_image *image;
     const uint8_t *image_sha256;
-    int skip_forced;
+    int skipping;
     const struct skip_list *skip_list;
     const uint8_t *bstart;
     uint32_t bstart_length;
@@ -389,6 +389,8 @@ struct pak {
     uint32_t strings_length;
     uint32_t bstart_blob;
     uint32_t skip_list_blob;
+    uint32_t shared_first_operation;
+    uint32_t shared_operation_count;
 };
 
 enum pak_operation_kind {

@@ -69,13 +69,9 @@
       "registry": ["profiles/registry/board.reg", "profiles/registry/crash-handler.reg"],
       "wordPatches": ["profiles/patches/ymu818-volume-pwsh2.json"],
       "cardFiles": [
-        { "path": "pwsh2-boot/Windows/brain-control.cpl", "file": "build/brain-control.cpl" },
         { "path": "pwsh2-boot/pwsh2/explorer.exe", "file": "binaries/explorer.exe" },
-        { "path": "pwsh2-boot/Keymap.exe", "file": "build/keymap.exe" },
         { "path": "pwsh2-boot/pwsh2/Windows/StartUp/Keymap.lnk", "file": "profiles/startup/keymap.lnk" },
-        { "path": "pwsh2-boot/pwsh2/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" },
-        { "path": "pwsh2-boot/debug/debugmgr.exe", "file": "build/debugmgr.exe" },
-        { "path": "pwsh2-boot/debug/usbserial.dll", "file": "build/usbserial.dll" }
+        { "path": "pwsh2-boot/pwsh2/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" }
       ]
     },
     {
@@ -92,13 +88,9 @@
       "registry": ["profiles/registry/board.reg", "profiles/registry/crash-handler.reg"],
       "wordPatches": ["profiles/patches/ymu818-volume-pwsb1.json"],
       "cardFiles": [
-        { "path": "pwsh2-boot/Windows/brain-control.cpl", "file": "build/brain-control.cpl" },
         { "path": "pwsh2-boot/pwsb1/explorer.exe", "file": "binaries/explorer.exe" },
-        { "path": "pwsh2-boot/Keymap.exe", "file": "build/keymap.exe" },
         { "path": "pwsh2-boot/pwsb1/Windows/StartUp/Keymap.lnk", "file": "profiles/startup/keymap.lnk" },
-        { "path": "pwsh2-boot/pwsb1/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" },
-        { "path": "pwsh2-boot/debug/debugmgr.exe", "file": "build/debugmgr.exe" },
-        { "path": "pwsh2-boot/debug/usbserial.dll", "file": "build/usbserial.dll" }
+        { "path": "pwsh2-boot/pwsb1/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" }
       ]
     },
     {
@@ -116,13 +108,9 @@
       "registry": ["profiles/registry/board.reg", "profiles/registry/touch-areas-pwsh4.reg"],
       "wordPatches": ["profiles/patches/sx8650-width-pwsh4.json"],
       "cardFiles": [
-        { "path": "pwsh2-boot/Windows/brain-control.cpl", "file": "build/brain-control.cpl" },
         { "path": "pwsh2-boot/pwsh4/explorer.exe", "file": "binaries/explorer.exe" },
-        { "path": "pwsh2-boot/Keymap.exe", "file": "build/keymap.exe" },
         { "path": "pwsh2-boot/pwsh4/Windows/StartUp/Keymap.lnk", "file": "profiles/startup/keymap.lnk" },
-        { "path": "pwsh2-boot/pwsh4/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" },
-        { "path": "pwsh2-boot/debug/debugmgr.exe", "file": "build/debugmgr.exe" },
-        { "path": "pwsh2-boot/debug/usbserial.dll", "file": "build/usbserial.dll" }
+        { "path": "pwsh2-boot/pwsh4/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" }
       ]
     },
     {
@@ -185,14 +173,16 @@
         { "path": "pwsh2-boot/pwa7300/Windows/braincrypt.dll", "file": "build/braincrypt.dll" },
         { "path": "pwsh2-boot/pwa7300/Windows/brainras.dll", "file": "build/brainras.dll" },
         { "path": "pwsh2-boot/pwa7300/Windows/brainsip.dll", "file": "build/brainsip.dll" },
-        { "path": "pwsh2-boot/Windows/brain-control.cpl", "file": "build/brain-control.cpl" },
         { "path": "pwsh2-boot/pwa7300/explorer.exe", "file": "binaries/explorer.exe" },
-        { "path": "pwsh2-boot/Keymap.exe", "file": "build/keymap.exe" },
         { "path": "pwsh2-boot/pwa7300/Windows/StartUp/Keymap.lnk", "file": "profiles/startup/keymap.lnk" },
-        { "path": "pwsh2-boot/pwa7300/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" },
-        { "path": "pwsh2-boot/debug/debugmgr.exe", "file": "build/debugmgr.exe" },
-        { "path": "pwsh2-boot/debug/usbserial.dll", "file": "build/usbserial.dll" }
+        { "path": "pwsh2-boot/pwa7300/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" }
       ]
     }
+  ],
+  "sharedCardFiles": [
+    { "path": "pwsh2-boot/Windows/brain-control.cpl", "file": "build/brain-control.cpl" },
+    { "path": "pwsh2-boot/Keymap.exe", "file": "build/keymap.exe" },
+    { "path": "pwsh2-boot/debug/debugmgr.exe", "file": "build/debugmgr.exe" },
+    { "path": "pwsh2-boot/debug/usbserial.dll", "file": "build/usbserial.dll" }
   ]
 }

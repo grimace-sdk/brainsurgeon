@@ -371,11 +371,11 @@ void make_bundle(const struct bundle_request *request, struct bundle_result *res
     fill_bytes(result, 0, sizeof(*result));
 
     int tested = skip_list_tested(request->skip_list, request->image_sha256);
-    int skipping = request->skip_forced || tested;
-    if (!request->skip_forced && !tested) {
-        log_line("note: skip list has not been checked against this image, so nothing is skipped; turn skipping on for a slightly faster boot");
+    if (request->skipping) {
+        step_begin("skip");
+        find_skip_spans(&builder, tested);
+        step_end("%u spans%s", builder.span_count, tested ? "" : "; skip list was checked against a different image");
     }
-    if (skipping) find_skip_spans(&builder, tested);
     builder.room = arena_allocate(builder.span_count * sizeof(struct span));
     builder.used = arena_allocate(builder.span_count);
     copy_bytes(builder.room, builder.spans, builder.span_count * sizeof(struct span));
