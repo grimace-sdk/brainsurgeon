@@ -323,6 +323,11 @@ static BOOL join_path(WCHAR *path, const WCHAR *folder, const WCHAR *name)
     return TRUE;
 }
 
+static BOOL is_macos_metadata(const WCHAR *name)
+{
+    return wcsncmp(name, L"._", 2) == 0;
+}
+
 static void copy_tree(const WCHAR *source, const WCHAR *destination)
 {
     WCHAR pattern[MAX_PATH], from[MAX_PATH], to[MAX_PATH];
@@ -335,6 +340,8 @@ static void copy_tree(const WCHAR *source, const WCHAR *destination)
     if (search == INVALID_HANDLE_VALUE)
         return;
     do {
+        if (is_macos_metadata(found.cFileName))
+            continue;
         if (!join_path(from, source, found.cFileName) || !join_path(to, destination, found.cFileName))
             continue;
         if (found.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
