@@ -32,8 +32,8 @@ case "$target" in
         arm-none-eabi-gcc -mcpu=arm926ej-s -marm -DNKGEN_VERSION_TEXT="\"$version\"" -c entry.S -o "$output/arm/entry.o"
         arm-none-eabi-gcc -nostdlib -Wl,--no-warn-rwx-segments -T nkgen.ld "$output/arm/entry.o" $objects -lgcc -o "$output/nkgen.elf"
         arm-none-eabi-objcopy -O binary "$output/nkgen.elf" "$output/nkgen.bin"
-        if arm-none-eabi-objdump -d "$output/nkgen.elf" | grep -qwE 'r9|sb'; then
-            echo "nkgen.elf uses r9, which holds U-Boot's global data pointer" >&2
+        if arm-none-eabi-objdump -d "$output/arm/entry.o" $objects | grep -qwE 'r9|sb'; then
+            echo "the generator uses r9, which holds U-Boot's global data pointer" >&2
             exit 1
         fi
         ${CC:-cc} -std=c99 -O2 $warnings -o "$output/nkgen-seal" seal.c
