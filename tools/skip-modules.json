@@ -1,0 +1,44 @@
+{
+  "source": "Modules and files referenced only from inside this set, from analysis of Sharp's EdAppCtrl and V090 image",
+  "tested_images": [
+    "4bd8e2c4c519ddcf0cacb29c3ece428a5ea917e82e31441687a502097a9cfc68",
+    "894a227cd6a262b157cb1a8dc6c9dbfa521f757ab90a7fa9e18ab60cefaa3d81",
+    "0844883d47f5b0d7d53b58f67619459049bfb213c27c71f143414f79a882a4ca",
+    "4e5ca383fd816e017f7d84a60d07bddaeabdbdf520a99d9c9bb16fba20f59c2b"
+  ],
+  "modules": [
+    "EdAppCtrl.exe",
+    "DiagApp.exe",
+    "copydll.dll",
+    "TTS.exe",
+    "vt_eng.dll",
+    "vt_chi.dll",
+    "vt_jpn.dll",
+    "SharpLib.dll",
+    "XMDFViewerDLL.dll",
+    "HWR_Predict.dll",
+    "HWR_dllChn.dll",
+    "HWR_dllJpn.dll",
+    "HWR_dllKor.dll",
+    "HWRNB_Predict.dll",
+    "HWRNB_dllEn.dll",
+    "HWRNB_dllJp.dll",
+    "dbapi2ed.dll",
+    "edjdb.dll",
+    "edwdif.dll",
+    "edwecli.dll",
+    "edwexp.dll",
+    "edwgsp.dll",
+    "edwmap.dll",
+    "edwopt.dll",
+    "edwsta.dll",
+    "EntierDal.dll",
+    "EdFileJPN.dll"
+  ],
+  "files": [
+    "EdDeskTop.bmp",
+    "MCURECOV.BIN",
+    "MCUFLASH.BIN"
+  ],
+  "minimum_span": 65536
+}

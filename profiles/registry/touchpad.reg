@@ -1,0 +1,7 @@
+[HKEY_LOCAL_MACHINE\Drivers\BuiltIn\Touchpad]
+"Prefix"="PAD"
+"Dll"="touchpad.dll"
+"Order"=dword:10
+"Index"=dword:1
+"Flags"=dword:10
+"UserProcGroup"=dword:3

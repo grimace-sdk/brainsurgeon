@@ -1,0 +1,32 @@
+{
+  "source": {
+    "name": "Material Symbols Rounded, filled, 24 px",
+    "repository": "https://github.com/google/material-design-icons",
+    "commit": "10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7",
+    "path": "symbols/web/{name}/materialsymbolsrounded/{name}_fill1_24px.svg",
+    "licence": "Apache-2.0"
+  },
+  "header": "ce/brain-control/icons.h",
+  "sizes": [24, 32],
+  "sections": ["brightness_6", "screen_rotation", "bedtime", "touchpad_mouse", "volume_up", "battery_full", "speed", "bug_report", "info"],
+  "symbols": {
+    "brightness_6": "6c08b254162d49f913343d25144ea57218ae042a5e817e182002d434431f36c8",
+    "screen_rotation": "bcbbb7089e485b84c04fbfe1ccfec5cda01aa2f198f82b2710ad4bd9f25216f0",
+    "bedtime": "74fe4e593f84e6ef3f6ff4502c9426f475bb649ca3f89513345f82405569ab15",
+    "touchpad_mouse": "0206ae2df34f97b8c22fc5fd9303e29829e3babcf489303b77e61bef73dc35ad",
+    "volume_up": "62300695b3e149d7f61f74721bea9e36876158c88248eb3fda6c80a2891b889d",
+    "battery_full": "ae2f6fbef5098bf19695ace7fd8b7405c601d1ed8346f6400e6de45d306da003",
+    "speed": "c035590107335c6201c7be22e5d0a31104267e7e1cfee3f85864ad9838e15f6b",
+    "bug_report": "6d2842401fa761e4b3c6e0845f67057a8d9a462b8f59e91556d7c9c8accae6f5",
+    "info": "c57db3e00e7235905dfb943ecc5b564148f82ed807284597418f9d8744b0f569",
+    "tune": "2e153083c6847581bb13980e84f2ca1e05048407b68dc9b96c409b1678e8eacb"
+  },
+  "appIcon": {
+    "output": "ce/brain-control/brain-control.ico",
+    "symbol": "tune",
+    "sizes": [16, 32],
+    "glyphScale": 0.75,
+    "top": [66, 133, 244],
+    "bottom": [25, 103, 210]
+  }
+}

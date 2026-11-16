@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1244" viewBox="0 0 900 1244">
+<defs>
+<pattern id="skipped" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#fbe2bb"/><rect width="1.5" height="6" fill="#d9902f"/></pattern>
+<marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 8 4 L 0 8 z" fill="#1f6feb"/></marker>
+</defs>
+<rect width="900" height="1244" rx="8" fill="#ffffff" stroke="#d0d7de"/>
+<rect x="360" y="128" width="64" height="820" fill="#c8d3df" stroke="#8c9bab"/>
+<rect x="360" y="446.32" width="64" height="35.96" fill="url(#skipped)"/>
+<rect x="360" y="484.51" width="64" height="7.17" fill="url(#skipped)"/>
+<rect x="360" y="491.74" width="64" height="2.49" fill="url(#skipped)"/>
+<rect x="360" y="511.26" width="64" height="38.13" fill="url(#skipped)"/>
+<rect x="360" y="549.46" width="64" height="7.86" fill="url(#skipped)"/>
+<rect x="360" y="558.85" width="64" height="3.98" fill="url(#skipped)"/>
+<rect x="360" y="564.76" width="64" height="28.34" fill="url(#skipped)"/>
+<rect x="360" y="594.16" width="64" height="50.57" fill="url(#skipped)"/>
+<rect x="360" y="645.72" width="64" height="17.98" fill="url(#skipped)"/>
+<rect x="360" y="665.24" width="64" height="17.32" fill="url(#skipped)"/>
+<rect x="360" y="684.28" width="64" height="148.98" fill="url(#skipped)"/>
+<rect x="360" y="836.09" width="64" height="34.01" fill="url(#skipped)"/>
+<rect x="360" y="870.19" width="64" height="2.67" fill="url(#skipped)"/>
+<rect x="360" y="881.27" width="64" height="2.58" fill="url(#skipped)"/>
+<rect x="360" y="178.45" width="64" height="2" fill="#8250df"/>
+<rect x="360" y="340.26" width="64" height="2" fill="#8250df"/>
+<rect x="360" y="426.28" width="64" height="2" fill="#8250df"/>
+<rect x="360" y="432.07" width="64" height="2" fill="#8250df"/>
+<rect x="360" y="437.01" width="64" height="2" fill="#8250df"/>
+<rect x="360" y="442.55" width="64" height="2" fill="#8250df"/>
+<rect x="360" y="446.32" width="64" height="22.55" fill="#1f6feb"/>
+<rect x="360" y="484.51" width="64" height="2.50" fill="#1f6feb"/>
+<rect x="360" y="491.74" width="64" height="2.50" fill="#1f6feb"/>
+<rect x="360" y="511.26" width="64" height="2.50" fill="#1f6feb"/>
+<rect x="360" y="549.46" width="64" height="2.50" fill="#1f6feb"/>
+<rect x="360" y="564.76" width="64" height="8.61" fill="#1f6feb"/>
+<rect x="360" y="558.85" width="64" height="2.50" fill="#1f6feb"/>
+<rect x="360" y="594.16" width="64" height="2.50" fill="#1f6feb"/>
+<rect x="360" y="645.72" width="64" height="4.93" fill="#1f6feb"/>
+<rect x="360" y="128" width="64" height="820" fill="none" stroke="#8c9bab"/>
+<line x1="424" y1="128.00" x2="430" y2="128.00" stroke="#59636e" stroke-width="0.75"/>
+<text x="432" y="132" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="start">0x80200000</text>
+<line x1="424" y1="446.32" x2="430" y2="446.32" stroke="#59636e" stroke-width="0.75"/>
+<text x="432" y="450.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="start">0x80c52000</text>
+<line x1="424" y1="883.85" x2="430" y2="883.85" stroke="#59636e" stroke-width="0.75"/>
+<text x="432" y="887.8472925538181" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="start">0x81a81600</text>
+<line x1="424" y1="894.32" x2="430" y2="897.85" stroke="#59636e" stroke-width="0.75"/>
+<text x="432" y="901.8472925538181" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="start">0x81ad84f8</text>
+<line x1="424" y1="948.00" x2="430" y2="948.00" stroke="#59636e" stroke-width="0.75"/>
+<text x="432" y="952" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="start">0x81c95d44</text>
+<line x1="424" y1="128.00" x2="520" y2="135.00" stroke="#8c9bab" stroke-width="0.75" stroke-dasharray="2 2"/>
+<text x="524" y="138" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">nk.exe 0x80200000, kernel.dll 0x80213000</text>
+<text x="524" y="152" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">run in place from fixed addresses</text>
+<line x1="424" y1="179.45" x2="520" y2="179.45" stroke="#8250df" stroke-width="0.75" stroke-dasharray="2 2"/>
+<text x="524" y="182.44707496690063" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">gwes.dll renamed gwe_.dll</text>
+<path d="M 502 128.00 H 508 V 446.32 H 502" fill="none" stroke="#8c9bab" stroke-width="1.5"/>
+<line x1="508" y1="287.16" x2="520" y2="280.16" stroke="#8c9bab" stroke-width="0.75"/>
+<text x="524" y="283.160623024065" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Kept: 128 modules</text>
+<text x="524" y="297.160623024065" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">CE kernel, drivers and shell</text>
+<line x1="424" y1="341.26" x2="520" y2="341.26" stroke="#8250df" stroke-width="0.75" stroke-dasharray="2 2"/>
+<text x="524" y="344.2583669588153" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">ceshell.dll renamed ceshel_.dll</text>
+<line x1="424" y1="427.28" x2="520" y2="427.28" stroke="#8250df" stroke-width="0.75" stroke-dasharray="2 2"/>
+<text x="524" y="430.28462346084586" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">ddraw_mx28.dll renamed ddraw_mx2_.dll</text>
+<line x1="424" y1="433.07" x2="520" y2="449.28" stroke="#8250df" stroke-width="0.75" stroke-dasharray="2 2"/>
+<text x="524" y="452.28462346084586" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">backlight.dll renamed backligh_.dll</text>
+<line x1="424" y1="438.01" x2="520" y2="471.28" stroke="#8250df" stroke-width="0.75" stroke-dasharray="2 2"/>
+<text x="524" y="474.28462346084586" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">EDNA2_slcd_ST7586.dll renamed EDNA2_slcd_ST758_.dll</text>
+<line x1="424" y1="443.55" x2="520" y2="493.28" stroke="#8250df" stroke-width="0.75" stroke-dasharray="2 2"/>
+<text x="524" y="496.28462346084586" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">keybd_EDNA2.dll renamed keybd_EDNA_.dll</text>
+<path d="M 502 446.32 H 508 V 482.29 H 502" fill="none" stroke="#d9902f" stroke-width="1.5"/>
+<line x1="508" y1="464.30" x2="520" y2="515.28" stroke="#d9902f" stroke-width="0.75"/>
+<text x="524" y="518.2846234608459" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Skipped: Sharp library, 1.2 MB</text>
+<text x="524" y="532.2846234608459" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">SharpLib.dll</text>
+<path d="M 502 484.51 H 508 V 494.23 H 502" fill="none" stroke="#d9902f" stroke-width="1.5"/>
+<line x1="508" y1="489.37" x2="520" y2="551.28" stroke="#d9902f" stroke-width="0.75"/>
+<text x="524" y="554.2846234608459" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Skipped: Sharp apps, 321 KB</text>
+<text x="524" y="568.2846234608459" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">DiagApp.exe</text>
+<path d="M 502 511.26 H 508 V 557.32 H 502" fill="none" stroke="#d9902f" stroke-width="1.5"/>
+<line x1="508" y1="534.29" x2="520" y2="587.28" stroke="#d9902f" stroke-width="0.75"/>
+<text x="524" y="590.2846234608459" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Skipped: XMDF book viewer, 1.5 MB</text>
+<text x="524" y="604.2846234608459" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">XMDFViewerDLL.dll</text>
+<path d="M 502 558.85 H 508 V 562.83 H 502" fill="none" stroke="#d9902f" stroke-width="1.5"/>
+<line x1="508" y1="560.84" x2="520" y2="623.28" stroke="#d9902f" stroke-width="0.75"/>
+<text x="524" y="626.2846234608459" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Skipped: Dictionary engine, 132 KB</text>
+<text x="524" y="640.2846234608459" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">dbapi2ed.dll</text>
+<path d="M 502 564.76 H 508 V 833.26 H 502" fill="none" stroke="#d9902f" stroke-width="1.5"/>
+<line x1="508" y1="699.01" x2="520" y2="685.01" stroke="#d9902f" stroke-width="0.75"/>
+<text x="524" y="688.0083139037092" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Skipped: Handwriting recognition, 8.5 MB</text>
+<text x="524" y="702.0083139037092" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">HWR_dllChn.dll, HWR_dllJpn.dll, HWR_dllKor.dll</text>
+<text x="524" y="716.0083139037092" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">HWRNB_dllEn.dll, HWRNB_dllJp.dll</text>
+<path d="M 502 836.09 H 508 V 872.85 H 502" fill="none" stroke="#d9902f" stroke-width="1.5"/>
+<line x1="508" y1="854.47" x2="520" y2="847.47" stroke="#d9902f" stroke-width="0.75"/>
+<text x="524" y="850.4715549300067" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Skipped: Dictionary engine, 1.2 MB</text>
+<text x="524" y="864.4715549300067" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">edwecli.dll</text>
+<path d="M 502 881.27 H 508 V 883.85 H 502" fill="none" stroke="#d9902f" stroke-width="1.5"/>
+<line x1="508" y1="882.56" x2="520" y2="883.47" stroke="#d9902f" stroke-width="0.75"/>
+<text x="524" y="886.4715549300067" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Skipped: Sharp apps, 86 KB</text>
+<text x="524" y="900.4715549300067" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">EdAppCtrl.exe</text>
+<path d="M 502 894.32 H 508 V 947.81 H 502" fill="none" stroke="#8c9bab" stroke-width="1.5"/>
+<line x1="508" y1="921.06" x2="520" y2="919.47" stroke="#8c9bab" stroke-width="0.75"/>
+<text x="524" y="922.4715549300067" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Kept: 17 ROM files</text>
+<text x="524" y="936.4715549300067" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">wince.nls, initobj.dat, default.fdf, ...</text>
+<line x1="424" y1="948.00" x2="520" y2="955.47" stroke="#8c9bab" stroke-width="0.75" stroke-dasharray="2 2"/>
+<text x="524" y="958.4715549300067" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">ROM header, module and file tables</text>
+<text x="524" y="972.4715549300067" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">then appended entries: see inset</text>
+<text x="24" y="118" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Loaded from the card into skipped spans</text>
+<text x="24" y="140" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#59636e" text-anchor="start">U-Boot zero-fills each skipped span, then reads our</text>
+<text x="24" y="154" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#59636e" text-anchor="start">files from the card into them. Each gets a ROM file</text>
+<text x="24" y="168" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#59636e" text-anchor="start">entry, new or repointed. Where Sharp's ROM has a</text>
+<text x="24" y="182" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#59636e" text-anchor="start">module of the same name, it is renamed, so CE</text>
+<text x="24" y="196" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#59636e" text-anchor="start">loads ours.</text>
+<rect x="24" y="427.32" width="290" height="38" rx="4" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="443.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">gwes.dll</text>
+<text x="306" y="443.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">749 KB at 0x80c52000</text>
+<text x="32" y="457.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">ROM module renamed gwe_.dll</text>
+<path d="M 314 446.32 C 338 446.32, 336 446.32, 359 446.32" fill="none" stroke="#1f6feb" stroke-width="1.25" marker-end="url(#arrow)"/>
+<rect x="24" y="473.32" width="290" height="38" rx="4" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="489.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">ddraw_mx28.dll</text>
+<text x="306" y="489.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">71 KB at 0x80d8f000</text>
+<text x="32" y="503.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">ROM module renamed ddraw_mx2_.dll</text>
+<path d="M 314 492.32 C 338 492.32, 336 484.51, 359 484.51" fill="none" stroke="#1f6feb" stroke-width="1.25" marker-end="url(#arrow)"/>
+<rect x="24" y="519.32" width="290" height="38" rx="4" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="535.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">EDNA2_slcd_ST7586.dll</text>
+<text x="306" y="535.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">17 KB at 0x80dcb000</text>
+<text x="32" y="549.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">ROM module renamed EDNA2_slcd_ST758_.dll</text>
+<path d="M 314 538.32 C 338 538.32, 336 491.74, 359 491.74" fill="none" stroke="#1f6feb" stroke-width="1.25" marker-end="url(#arrow)"/>
+<rect x="24" y="565.32" width="290" height="38" rx="4" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="581.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">backlight.dll</text>
+<text x="306" y="581.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">13 KB at 0x80e6d000</text>
+<text x="32" y="595.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">ROM module renamed backligh_.dll</text>
+<path d="M 314 584.32 C 338 584.32, 336 511.26, 359 511.26" fill="none" stroke="#1f6feb" stroke-width="1.25" marker-end="url(#arrow)"/>
+<rect x="24" y="611.32" width="290" height="38" rx="4" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="627.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">keybd_EDNA2.dll</text>
+<text x="306" y="627.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">43 KB at 0x80faa000</text>
+<text x="32" y="641.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">ROM module renamed keybd_EDNA_.dll</text>
+<path d="M 314 630.32 C 338 630.32, 336 549.46, 359 549.46" fill="none" stroke="#1f6feb" stroke-width="1.25" marker-end="url(#arrow)"/>
+<rect x="24" y="657.32" width="290" height="38" rx="4" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="673.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">board.dll</text>
+<text x="306" y="673.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">12 KB at 0x80ff8000</text>
+<text x="32" y="687.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">new ROM file</text>
+<path d="M 314 676.32 C 338 676.32, 336 558.85, 359 558.85" fill="none" stroke="#1f6feb" stroke-width="1.25" marker-end="url(#arrow)"/>
+<rect x="24" y="703.32" width="290" height="38" rx="4" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="719.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">ceshell.dll</text>
+<text x="306" y="719.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">286 KB at 0x81029000</text>
+<text x="32" y="733.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#8250df" text-anchor="start">ROM module renamed ceshel_.dll</text>
+<path d="M 314 722.32 C 338 722.32, 336 564.76, 359 564.76" fill="none" stroke="#1f6feb" stroke-width="1.25" marker-end="url(#arrow)"/>
+<rect x="24" y="749.32" width="290" height="38" rx="4" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="765.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">touchpad.dll</text>
+<text x="306" y="765.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">9 KB at 0x8111d000</text>
+<text x="32" y="779.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">new ROM file</text>
+<path d="M 314 768.32 C 338 768.32, 336 594.16, 359 594.16" fill="none" stroke="#1f6feb" stroke-width="1.25" marker-end="url(#arrow)"/>
+<rect x="24" y="795.32" width="290" height="38" rx="4" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="811.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">default.fdf</text>
+<text x="306" y="811.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">164 KB at 0x812c9000</text>
+<text x="32" y="825.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">Sharp's file entry repointed</text>
+<path d="M 314 814.32 C 338 814.32, 336 645.72, 359 645.72" fill="none" stroke="#1f6feb" stroke-width="1.25" marker-end="url(#arrow)"/>
+<text x="24" y="879.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Image end, not to scale</text>
+<rect x="24" y="889.32124604813" width="290" height="38" fill="#c8d3df" stroke="#8c9bab"/>
+<text x="32" y="905.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">ROM files</text>
+<text x="32" y="919.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">ceconfig.h to LCDTEST.JPG</text>
+<text x="308" y="905.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">0x81ad84f8</text>
+<rect x="24" y="927.32124604813" width="290" height="38" fill="#e3e7eb" stroke="#57606a"/>
+<text x="32" y="943.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">ROM header, 84 B</text>
+<text x="32" y="957.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">numfiles 52 to 61, physlast moved</text>
+<text x="308" y="943.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">0x81c94380</text>
+<rect x="24" y="965.32124604813" width="290" height="24" fill="#e3e7eb" stroke="#57606a"/>
+<text x="32" y="981.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">Module table: 158 x 32 B</text>
+<text x="308" y="981.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">0x81c943d4</text>
+<rect x="24" y="989.32124604813" width="290" height="24" fill="#e3e7eb" stroke="#57606a"/>
+<text x="32" y="1005.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">File table: 52 x 28 B</text>
+<text x="308" y="1005.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">0x81c95794</text>
+<line x1="18" y1="1013.32124604813" x2="320" y2="1013.32124604813" stroke="#1f2328" stroke-width="1.5" stroke-dasharray="5 3"/>
+<text x="314" y="1025.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#1f2328" text-anchor="end">image end, physlast 0x81c95d44</text>
+<rect x="24" y="1031.32124604813" width="290" height="80" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="1047.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">File table: 9 more entries</text>
+<text x="32" y="1061.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">bstart.exe, gwes.dll, ddraw_mx28.dll</text>
+<text x="32" y="1075.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">EDNA2_slcd_ST7586.dll, backlight.dll</text>
+<text x="32" y="1089.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">keybd_EDNA2.dll, ceshell.dll, board.dll</text>
+<text x="32" y="1103.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">touchpad.dll</text>
+<text x="308" y="1047.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">0x81c95d44</text>
+<rect x="24" y="1111.32124604813" width="290" height="38" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="1127.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">bstart.exe</text>
+<text x="32" y="1141.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">name and data, 15 KB</text>
+<text x="308" y="1127.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">0x81c95e40</text>
+<rect x="24" y="1149.32124604813" width="290" height="24" fill="#ddebff" stroke="#1f6feb"/>
+<text x="32" y="1165.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="bold" fill="#1f2328" text-anchor="start">patch a7300-display: 3 KB</text>
+<text x="308" y="1165.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#59636e" text-anchor="end">0x81c9984c</text>
+<line x1="18" y1="1173.32124604813" x2="320" y2="1173.32124604813" stroke="#1f2328" stroke-width="1.5" stroke-dasharray="5 3"/>
+<text x="314" y="1185.32124604813" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="10" font-weight="normal" fill="#1f2328" text-anchor="end">new physlast 0x81c9a3b0</text>
+<rect x="24" y="1191.32124604813" width="290" height="24" fill="#f6f8fa" stroke="#d0d7de"/>
+<text x="32" y="1207.32124604813" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="start">free up to ulRAMStart 0x81ca0000</text>
+<path d="M 360 894.32 L 322 889.32124604813 M 360 948 L 322 1215.32124604813" fill="none" stroke="#59636e" stroke-width="0.75" stroke-dasharray="3 3"/>
+<path d="M 356 894.32 H 352 V 948 H 356" fill="none" stroke="#59636e" stroke-width="1"/>
+<rect x="24" y="66" width="14" height="12" fill="#c8d3df" stroke="#8c9bab"/>
+<text x="44" y="76" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2328" text-anchor="start">Kept</text>
+<rect x="94.4" y="66" width="14" height="12" fill="url(#skipped)" stroke="#d9902f"/>
+<text x="114.4" y="76" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2328" text-anchor="start">Skipped: not read, zero-filled</text>
+<rect x="336.4" y="66" width="14" height="12" fill="#1f6feb" stroke="#1f6feb"/>
+<text x="356.4" y="76" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2328" text-anchor="start">Ours, loaded from the card</text>
+<rect x="552" y="66" width="14" height="12" fill="#8250df" stroke="#8250df"/>
+<text x="572" y="76" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#1f2328" text-anchor="start">Renamed ROM module</text>
+<text x="24" y="34" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="17" font-weight="bold" fill="#1f2328" text-anchor="start">PW-A7300 main image: the CE image as boot.nkp leaves it</text>
+<text x="24" y="54" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" font-weight="normal" fill="#59636e" text-anchor="start">27,876,676 bytes at 0x80200000. Bar to scale, 1 px = 33 KB. 14 skipped spans, 12.9 MB.</text>
+<text x="392" y="120" font-family="system-ui, -apple-system, Segoe UI, Helvetica, Arial, sans-serif" font-size="11" font-weight="normal" fill="#59636e" text-anchor="middle">Sharp CE image</text>
+</svg>

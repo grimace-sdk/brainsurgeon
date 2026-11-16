@@ -1,0 +1,8 @@
+{
+  "module": "sx8650_touchscreen.dll",
+  "image": "PW-SH4 slot B, sha256 4e5ca383fd816e017f7d84a60d07bddaeabdbdf520a99d9c9bb16fba20f59c2b",
+  "words": [
+    { "address": "c07c24f4", "original": "e3540e32", "replacement": "e3540e35", "purpose": "Factory raw to screen transform: cmp r4, #848, the x clamp limit" },
+    { "address": "c07c24fc", "original": "a383401f", "replacement": "a383404f", "purpose": "Factory raw to screen transform: orrge r4, r3, #79, clamp x to 847" }
+  ]
+}

@@ -1,0 +1,6 @@
+program=\Storage Card\MyApp\MyApp.exe
+arguments=
+wait-for-window=
+restart-keyboard=yes
+restart-shortcut=yes
+wallpaper=

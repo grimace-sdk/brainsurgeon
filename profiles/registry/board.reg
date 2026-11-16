@@ -1,0 +1,5 @@
+[HKEY_LOCAL_MACHINE\Drivers\BuiltIn\Board]
+"Prefix"="BRD"
+"Dll"="board.dll"
+"Order"=dword:3
+"Index"=dword:1

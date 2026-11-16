@@ -1,0 +1,141 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: NK patch parser
+        run: sh uboot/tests/run.sh
+      - name: Tools
+        run: |
+          for script in tools/*.mjs tools/lib/*.mjs tools/nk/*.mjs web/*.mjs; do node --check "$script"; done
+          node tools/make-boot-nkp.mjs --help
+          node tools/make-icons.mjs --check
+      - name: Applet icons
+        run: |
+          if grep -l CPlApplet ce/*.c ce/*/*.c | xargs grep -n -E 'LoadIconW|LoadImageW.*IMAGE_ICON'; then
+            echo "Control Panel applets must get their icon from applet_icon() (docs/brain-control.md, Icons)"
+            exit 1
+          fi
+
+  build:
+    strategy:
+      matrix:
+        model: [pwsh2, pwa7300, pwsh4]
+        run: [first, second]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build
+        env:
+          BRAIN_MODEL: ${{ matrix.model }}
+        run: sh build.sh out
+      - uses: actions/upload-artifact@v7
+        with:
+          name: build-${{ matrix.model }}-${{ matrix.run }}
+          path: out/
+
+  release:
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v8
+        with:
+          path: builds
+      - name: Check the two builds of each model are identical
+        run: |
+          for model in pwsh2:edsa2exe.bin pwa7300:edna3exe.bin pwsh4:edsh4exe.bin; do
+            for file in u-boot.bin ${model#*:} bstart.exe autorotate.exe crashlog.exe \
+              brain-control.cpl braincrypt.dll brainras.dll brainsip.dll keymap.exe debugmgr.exe usbserial.dll a7300-display.bin; do
+              cmp builds/build-${model%%:*}-first/$file builds/build-${model%%:*}-second/$file
+            done
+            cat builds/build-${model%%:*}-first/build-info.txt
+          done
+      - name: Combine the models
+        run: |
+          cp -R builds/build-pwsh2-first builds/release
+          cp builds/build-pwa7300-first/edna3exe.bin builds/build-pwsh4-first/edsh4exe.bin builds/release/
+          cp builds/build-pwa7300-first/build-info.txt builds/release/build-info-pwa7300.txt
+          cp builds/build-pwsh4-first/build-info.txt builds/release/build-info-pwsh4.txt
+      - name: Fetch inputs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node tools/fetch-inputs.mjs
+      - name: Package
+        id: package
+        run: echo "zip=$(sh tools/package.sh builds/release)" >> "$GITHUB_OUTPUT"
+      - name: Check the card
+        run: |
+          listing=$(unzip -Z1 "${{ steps.package.outputs.zip }}")
+          for path in EDSA2EXE.BIN EDSA2CFG.BIN EDSA1EXE.BIN EDSA1CFG.BIN EDNA3EXE.BIN EDNA3CFG.BIN EDSH4EXE.BIN \
+            pwsh2-boot/pwsh2/launch.txt pwsh2-boot/pwsh2/explorer.exe pwsh2-boot/pwa7300/launch.txt pwsh2-boot/pwa7300/explorer.exe \
+            pwsh2-boot/Keymap.exe pwsh2-boot/pwsh2/Windows/StartUp/Keymap.lnk pwsh2-boot/pwa7300/Windows/StartUp/Keymap.lnk \
+            pwsh2-boot/debug/debugmgr.exe pwsh2-boot/debug/usbserial.dll; do
+            echo "$listing" | grep -qx "[^/]*/card/$path"
+          done
+      - uses: actions/upload-artifact@v7
+        with:
+          name: brainsurgeon
+          path: ${{ steps.package.outputs.zip }}
+      - uses: softprops/action-gh-release@v3
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            ${{ steps.package.outputs.zip }}
+            builds/release/build-info*.txt
+
+  pages:
+    needs: release
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v8
+        with:
+          name: build-pwsh2-first
+          path: build
+      - name: Fetch inputs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node tools/fetch-inputs.mjs
+      - name: Assemble site
+        run: sh tools/build-site.sh build site
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v5

@@ -1,0 +1,6 @@
+[HKEY_LOCAL_MACHINE\Software\Brain\DdiTrace]
+"Driver"="ddraw_traced.dll"
+"Output"="\\Storage Card\\ddi-trace.txt"
+"Wrap"=dword:7fffffff
+"WrapCallbacks"=dword:1
+"Probe"=dword:0

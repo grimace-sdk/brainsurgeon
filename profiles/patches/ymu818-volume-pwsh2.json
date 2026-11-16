@@ -1,0 +1,17 @@
+{
+  "module": "ymu818_wavdev.dll",
+  "image": "PW-SH2 slot B, sha256 4bd8e2c4c519ddcf0cacb29c3ece428a5ea917e82e31441687a502097a9cfc68",
+  "words": [
+    { "address": "c07d8670", "original": "e5923004", "replacement": "e582005c", "purpose": "SetMasterVolume: str r0, [r2, #0x5c], the output DeviceContext gain" },
+    { "address": "c07d8674", "original": "e2820004", "replacement": "e2820050", "purpose": "SetMasterVolume: add r0, r2, #0x50, the output DeviceContext" },
+    { "address": "c07d8678", "original": "e593301c", "replacement": "ebffee05", "purpose": "SetMasterVolume: bl 0xc07d3e94, RecalcAllGains" },
+    { "address": "c07d867c", "original": "e1a0e00f", "replacement": "e3a00000", "purpose": "SetMasterVolume: mov r0, #0, MMSYSERR_NOERROR" },
+    { "address": "c07d8680", "original": "e12fff13", "replacement": "e8bd4010", "purpose": "SetMasterVolume: pop {r4, lr}" },
+    { "address": "c07d8684", "original": "e5943000", "replacement": "e12fff1e", "purpose": "SetMasterVolume: bx lr" },
+    { "address": "c07d86a4", "original": "c07e9030", "replacement": "c07e8fe0", "purpose": "SetMasterVolume literal: g_pHWContext instead of the mixer control list" },
+    { "address": "c07d86b4", "original": "e5923004", "replacement": "e592005c", "purpose": "GetMasterVolume: ldr r0, [r2, #0x5c], the output DeviceContext gain" },
+    { "address": "c07d86b8", "original": "e2820004", "replacement": "e49de004", "purpose": "GetMasterVolume: pop {lr}" },
+    { "address": "c07d86bc", "original": "e5933020", "replacement": "e12fff1e", "purpose": "GetMasterVolume: bx lr" },
+    { "address": "c07d86d0", "original": "c07e9030", "replacement": "c07e8fe0", "purpose": "GetMasterVolume literal: g_pHWContext instead of the mixer control list" }
+  ]
+}

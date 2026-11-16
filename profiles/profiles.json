@@ -1,0 +1,198 @@
+{
+  "inputs": [
+    {
+      "url": "https://github.com/grimace-sdk/brain-display/releases/download/v0.1.2-alpha/brain-display-pwsh2.dll",
+      "sha256": "b5b8270a4f83e5c5662d0366a11fcd7723186b499face011e573b9d1cb9cba2d",
+      "size": 84992,
+      "file": "brain-display-pwsh2.dll"
+    },
+    {
+      "url": "https://github.com/grimace-sdk/brain-display/releases/download/v0.1.2-alpha/brain-display-pwsh4.dll",
+      "sha256": "8d144b32e69f8e3179e4fa1933cfc2f7bbb11c8f12ae7e3607256aee8971939b",
+      "size": 74240,
+      "file": "brain-display-pwsh4.dll"
+    },
+    {
+      "url": "https://github.com/grimace-sdk/brain-display/releases/download/v0.1.2-alpha/brain-display-pwa7300.dll",
+      "sha256": "5a0743b33fbbbbdcea1f8342514a1189564aea2cb3219793cf5f0b76ee7c217b",
+      "size": 89600,
+      "file": "brain-display-pwa7300.dll"
+    },
+    {
+      "url": "https://github.com/grimace-sdk/brain-drivers/releases/download/v0.1.5-alpha/brain-drivers-pwsh2.zip",
+      "sha256": "34fe363d22f9fd7f1134c1bce5c335bd2e85db501260687cba96731fd3c2be6c",
+      "size": 11821,
+      "directory": "brain-drivers-pwsh2",
+      "members": {
+        "board.dll": { "sha256": "281d81acbef7c3160cfd7cb84c084d723fd394af0d84d6c081ca5c48b09506f8", "size": 11264 },
+        "touchraw.dll": { "sha256": "8207c369faeee4698a52d9ee4b88c9e46aaddae5f87801e75646adb183c97833", "size": 6656 },
+        "backlight.dll": { "sha256": "38385fa53ee681007e939b0860fc606f37b710c8c75f1de43622fec56038c66b", "size": 10752 }
+      }
+    },
+    {
+      "url": "https://github.com/grimace-sdk/brain-drivers/releases/download/v0.1.5-alpha/brain-drivers-pwsh4.zip",
+      "sha256": "4fc7ede7bd3a8b7f12702be49653ebb3fd1401ea70cc8653c58e1f6afd387570",
+      "size": 11813,
+      "directory": "brain-drivers-pwsh4",
+      "members": {
+        "board.dll": { "sha256": "281d81acbef7c3160cfd7cb84c084d723fd394af0d84d6c081ca5c48b09506f8", "size": 11264 },
+        "touchraw.dll": { "sha256": "3b79721d35796cd84cf1ab399cbc4f5527e28e1e8b408010b306be88a48a3258", "size": 6656 },
+        "backlight.dll": { "sha256": "38385fa53ee681007e939b0860fc606f37b710c8c75f1de43622fec56038c66b", "size": 10752 }
+      }
+    },
+    {
+      "url": "https://github.com/grimace-sdk/brain-drivers/releases/download/v0.1.5-alpha/brain-drivers-pwa7300.zip",
+      "sha256": "ba1e8d2f02920153a1187d6cb6382c33bd0b8993d1257a55a523962c074aac79",
+      "size": 21620,
+      "directory": "brain-drivers-pwa7300",
+      "members": {
+        "board.dll": { "sha256": "dcf49ffc2b928e555b7481f7d4ad23e837b3529e2e33e32ee1408092078f09ac", "size": 11776 },
+        "touchpad.dll": { "sha256": "9f06b0b8a3d6d1d73f2c8f26c6c650b3a17ee0ef44eb05cad7658fdda9574541", "size": 8704 },
+        "EDNA2_slcd_ST7586.dll": { "sha256": "906905f8bc9d20f0a9024dec899c524ef93f276392786fe3e927acae8920c562", "size": 16896 },
+        "backlight.dll": { "sha256": "4b130b4bb0ea8c11b013c215ee191278f5a5e7b2a45780840562d751057f3fca", "size": 11776 }
+      }
+    }
+  ],
+  "profiles": [
+    {
+      "id": "pwsh2",
+      "device": "PW-SH2",
+      "images": [
+        { "sha256": "4bd8e2c4c519ddcf0cacb29c3ece428a5ea917e82e31441687a502097a9cfc68", "length": 30715580, "description": "CE V090, slot B" }
+      ],
+      "modules": [
+        { "name": "board.dll", "file": "inputs/brain-drivers-pwsh2/board.dll" },
+        { "name": "ddraw_mx28.dll", "file": "inputs/brain-display-pwsh2.dll" },
+        { "name": "touchraw.dll", "file": "inputs/brain-drivers-pwsh2/touchraw.dll" },
+        { "name": "backlight.dll", "file": "inputs/brain-drivers-pwsh2/backlight.dll" }
+      ],
+      "registry": ["profiles/registry/board.reg", "profiles/registry/crash-handler.reg"],
+      "wordPatches": ["profiles/patches/ymu818-volume-pwsh2.json"],
+      "cardFiles": [
+        { "path": "pwsh2-boot/Windows/brain-control.cpl", "file": "build/brain-control.cpl" },
+        { "path": "pwsh2-boot/pwsh2/explorer.exe", "file": "binaries/explorer.exe" },
+        { "path": "pwsh2-boot/Keymap.exe", "file": "build/keymap.exe" },
+        { "path": "pwsh2-boot/pwsh2/Windows/StartUp/Keymap.lnk", "file": "profiles/startup/keymap.lnk" },
+        { "path": "pwsh2-boot/pwsh2/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" },
+        { "path": "pwsh2-boot/debug/debugmgr.exe", "file": "build/debugmgr.exe" },
+        { "path": "pwsh2-boot/debug/usbserial.dll", "file": "build/usbserial.dll" }
+      ]
+    },
+    {
+      "id": "pwsb1",
+      "device": "PW-SB1",
+      "images": [
+        { "sha256": "66f0ba7ef521a1d084365e0a562a8b37f2bfa4c97e8189ba173ef69797004983", "length": 30542400, "description": "slot B" }
+      ],
+      "modules": [
+        { "name": "board.dll", "file": "inputs/brain-drivers-pwsh2/board.dll" },
+        { "name": "ddraw_mx28.dll", "file": "inputs/brain-display-pwsh2.dll" },
+        { "name": "touchraw.dll", "file": "inputs/brain-drivers-pwsh2/touchraw.dll" }
+      ],
+      "registry": ["profiles/registry/board.reg", "profiles/registry/crash-handler.reg"],
+      "wordPatches": ["profiles/patches/ymu818-volume-pwsb1.json"],
+      "cardFiles": [
+        { "path": "pwsh2-boot/Windows/brain-control.cpl", "file": "build/brain-control.cpl" },
+        { "path": "pwsh2-boot/pwsb1/explorer.exe", "file": "binaries/explorer.exe" },
+        { "path": "pwsh2-boot/Keymap.exe", "file": "build/keymap.exe" },
+        { "path": "pwsh2-boot/pwsb1/Windows/StartUp/Keymap.lnk", "file": "profiles/startup/keymap.lnk" },
+        { "path": "pwsh2-boot/pwsb1/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" },
+        { "path": "pwsh2-boot/debug/debugmgr.exe", "file": "build/debugmgr.exe" },
+        { "path": "pwsh2-boot/debug/usbserial.dll", "file": "build/usbserial.dll" }
+      ]
+    },
+    {
+      "id": "pwsh4",
+      "device": "PW-SH4",
+      "images": [
+        { "sha256": "4e5ca383fd816e017f7d84a60d07bddaeabdbdf520a99d9c9bb16fba20f59c2b", "length": 29753180, "description": "CE V100, slot B" }
+      ],
+      "modules": [
+        { "name": "board.dll", "file": "inputs/brain-drivers-pwsh4/board.dll" },
+        { "name": "ddraw_mx28.dll", "file": "inputs/brain-display-pwsh4.dll" },
+        { "name": "touchraw.dll", "file": "inputs/brain-drivers-pwsh4/touchraw.dll" },
+        { "name": "backlight.dll", "file": "inputs/brain-drivers-pwsh4/backlight.dll" }
+      ],
+      "registry": ["profiles/registry/board.reg", "profiles/registry/touch-areas-pwsh4.reg"],
+      "wordPatches": ["profiles/patches/sx8650-width-pwsh4.json"],
+      "cardFiles": [
+        { "path": "pwsh2-boot/Windows/brain-control.cpl", "file": "build/brain-control.cpl" },
+        { "path": "pwsh2-boot/pwsh4/explorer.exe", "file": "binaries/explorer.exe" },
+        { "path": "pwsh2-boot/Keymap.exe", "file": "build/keymap.exe" },
+        { "path": "pwsh2-boot/pwsh4/Windows/StartUp/Keymap.lnk", "file": "profiles/startup/keymap.lnk" },
+        { "path": "pwsh2-boot/pwsh4/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" },
+        { "path": "pwsh2-boot/debug/debugmgr.exe", "file": "build/debugmgr.exe" },
+        { "path": "pwsh2-boot/debug/usbserial.dll", "file": "build/usbserial.dll" }
+      ]
+    },
+    {
+      "id": "pwa7300",
+      "device": "PW-A7300",
+      "images": [
+        { "sha256": "894a227cd6a262b157cb1a8dc6c9dbfa521f757ab90a7fa9e18ab60cefaa3d81", "length": 27876676, "description": "main image" },
+        { "sha256": "0844883d47f5b0d7d53b58f67619459049bfb213c27c71f143414f79a882a4ca", "length": 28106052, "description": "main image", "device": "PW-G5300" }
+      ],
+      "a7300Display": "build/a7300-display.bin",
+      "modules": [
+        { "name": "gwes.dll", "file": "binaries/pwa7300/gwes.dll" },
+        { "name": "ddraw_mx28.dll", "file": "inputs/brain-display-pwa7300.dll" },
+        { "name": "EDNA2_slcd_ST7586.dll", "file": "inputs/brain-drivers-pwa7300/EDNA2_slcd_ST7586.dll" },
+        { "name": "backlight.dll", "file": "inputs/brain-drivers-pwa7300/backlight.dll" },
+        {
+          "name": "keybd_EDNA2.dll",
+          "rom": {
+            "module": "keybd_EDNA2.dll",
+            "patchBytes": [
+              { "offset": "4604", "original": "580053e3", "replacement": "020c53e3", "purpose": "KeybdPdd_GetEventEx2: cmp r3, #0x58 to cmp r3, #0x200, so scan 0x58 is no longer a one-shot Shift" },
+              { "offset": "9d1f", "original": "14", "replacement": "a0", "purpose": "PS2_AT scan 0x58: VK_CAPITAL to VK_LSHIFT" }
+            ]
+          }
+        },
+        { "name": "ceshell.dll", "file": "binaries/pwa7300/ceshell.dll" },
+        { "name": "board.dll", "file": "inputs/brain-drivers-pwa7300/board.dll" },
+        { "name": "touchpad.dll", "file": "inputs/brain-drivers-pwa7300/touchpad.dll" }
+      ],
+      "registry": ["profiles/registry/board.reg", "profiles/registry/touchpad.reg", "profiles/registry/crash-handler.reg"],
+      "cardFiles": [
+        {
+          "path": "pwsh2-boot/pwa7300/Windows/CPLBRAIN.CPL",
+          "rom": {
+            "module": "cplmain.cpl",
+            "spareSections": 3,
+            "redirectImports": [
+              {
+                "from": "COREDLL.dll",
+                "to": "braincrypt.dll",
+                "imports": {
+                  "126": "CryptAcquireContextW", "127": "CryptReleaseContext", "129": "CryptDeriveKey", "130": "CryptDestroyKey",
+                  "132": "CryptGetKeyParam", "134": "CryptImportKey", "137": "CryptCreateHash", "139": "CryptHashData",
+                  "140": "CryptDestroyHash", "144": "CryptGetUserKey", "148": "CryptGetProvParam", "153": "CryptEnumProvidersW"
+                }
+              },
+              {
+                "from": "COREDLL.dll",
+                "to": "brainras.dll",
+                "imports": { "345": "RasEnumEntries", "348": "RasGetEntryProperties", "364": "lineInitialize", "370": "lineShutdown", "373": "lineTranslateDialog" }
+              },
+              {
+                "from": "COREDLL.dll",
+                "to": "brainsip.dll",
+                "imports": { "1175": "SipGetCurrentIM", "1176": "SipSetCurrentIM" }
+              }
+            ]
+          }
+        },
+        { "path": "pwsh2-boot/pwa7300/Windows/braincrypt.dll", "file": "build/braincrypt.dll" },
+        { "path": "pwsh2-boot/pwa7300/Windows/brainras.dll", "file": "build/brainras.dll" },
+        { "path": "pwsh2-boot/pwa7300/Windows/brainsip.dll", "file": "build/brainsip.dll" },
+        { "path": "pwsh2-boot/Windows/brain-control.cpl", "file": "build/brain-control.cpl" },
+        { "path": "pwsh2-boot/pwa7300/explorer.exe", "file": "binaries/explorer.exe" },
+        { "path": "pwsh2-boot/Keymap.exe", "file": "build/keymap.exe" },
+        { "path": "pwsh2-boot/pwa7300/Windows/StartUp/Keymap.lnk", "file": "profiles/startup/keymap.lnk" },
+        { "path": "pwsh2-boot/pwa7300/Windows/Programs/Keyboard Help.lnk", "file": "profiles/startup/keyboard-help.lnk" },
+        { "path": "pwsh2-boot/debug/debugmgr.exe", "file": "build/debugmgr.exe" },
+        { "path": "pwsh2-boot/debug/usbserial.dll", "file": "build/usbserial.dll" }
+      ]
+    }
+  ]
+}
