@@ -66,7 +66,7 @@ Copy the release's `card/` folder to the card, then boot each Brain from it. On 
 - [Windows CE and Linux](docs/dual-boot.md)
 - [Reference](docs/reference.md): card files, menu, `launch.txt`, `boot.nkp`, U-Boot commands, diagnostics.
 
-For images or set-ups the generator can't handle, the [patch maker](https://grimace-sdk.github.io/brainsurgeon/) page and `tools/make-boot-nkp.mjs` make the same files on a computer from a copy of the CE image ([Patch Maker and Command Line](docs/windows-ce.md#3-patch-maker-and-command-line)). Releases contain the card files, `make-boot-nkp.mjs`, which needs [Node.js](https://nodejs.org) 20 or later, and everything the profiles add: `build/` (bstart and the CE programs), `inputs/` (pinned brain-display and brain-drivers release files), `binaries/` and `profiles/`.
+For images or set-ups the generator can't handle, `tools/make-boot-nkp.mjs` makes the same files on a computer from a copy of the CE image ([Command Line](docs/windows-ce.md#3-command-line)). Releases contain the card files, `make-boot-nkp.mjs`, which needs [Node.js](https://nodejs.org) 20 or later, and everything the profiles add: `build/` (bstart and the CE programs), `inputs/` (pinned brain-display and brain-drivers release files), `binaries/` and `profiles/`.
 
 ## Building
 
@@ -76,7 +76,7 @@ For images or set-ups the generator can't handle, the [patch maker](https://grim
 sh build.sh out
 ```
 
-`out/build-info.txt` records every input and the output hashes. CI builds each model twice on separate runners, checks the results match, fetches the profile inputs (`node tools/fetch-inputs.mjs`, which checks each SHA-256), attaches a release zip made by `tools/package.sh` with every model's U-Boot, `nkgen.bin` and `nkgen.pak` (made by `tools/make-nkgen-pak.mjs`), and publishes the web page to GitHub Pages with the files from that build (`tools/build-site.sh`).
+`out/build-info.txt` records every input and the output hashes. CI builds each model twice on separate runners, checks the results match, fetches the profile inputs (`node tools/fetch-inputs.mjs`, which checks each SHA-256), and attaches a release zip made by `tools/package.sh` with every model's U-Boot, `nkgen.bin` and `nkgen.pak` (made by `tools/make-nkgen-pak.mjs`).
 
 From a checkout, after `sh build.sh out` and `node tools/fetch-inputs.mjs`:
 
@@ -90,13 +90,12 @@ node tools/make-boot-nkp.mjs --image nk-slot-B.bin --build out --card /path/to/c
 - `ce/`: Windows CE programs, built with [grimace](https://github.com/grimace-sdk/grimace) and [llvm-builds](https://github.com/grimace-sdk/llvm-builds): `bstart.exe` (the launcher), `autorotate.exe` (startup rotation and tablet mode), `brain-control.cpl` ([Brain Control](docs/brain-control.md), one applet for every setting), the A7300 Control Panel stand-ins (`braincrypt.dll`, `brainras.dll`, `brainsip.dll`) and `keymap.exe` ([Keymap](ce/keymap/README.md), key remaps and the keyboard map). The board, backlight, touch and sub screen drivers come from [brain-drivers](https://github.com/grimace-sdk/brain-drivers).
 - `ce/drivers/ddi-trace/`: display diagnostics. `ddi-trace.dll` logs display driver calls, and the test programs built with it draw test patterns and save logs and screenshots to the card.
 - `tools/bmp-diff.py`, `tools/bmp-contact-sheet.py`: display diagnostics. Compare two screenshots, or lay screenshots out on one sheet.
-- `tools/lib/`: CE ROM image, registry, LZX and `boot.nkp` code, shared by the command-line tools and the web page.
+- `tools/lib/`: CE ROM image, registry, LZX and `boot.nkp` code, shared by the command-line tools.
 - `tools/make-boot-nkp.mjs`: makes `boot.nkp` and the card files from a CE image.
 - `tools/make-nkgen-pak.mjs`: makes `nkgen.pak`, the inputs for the [on-device generator](docs/on-device-generation.md), from the profiles; `--describe` prints one.
 - `nkgen/`: the [on-device generator](docs/on-device-generation.md), `nkgen.bin` for U-Boot and `nkgen-host`, made by `nkgen/build.sh`. `tools/check-nkgen.sh` compares it with `make-boot-nkp.mjs`.
 - `profiles/`: per-device drivers, registry additions and patches.
 - `binaries/`: `explorer.exe` for every model and the A7300 `gwes.dll` and `ceshell.dll`, shipped as built.
-- `web/`: the patch maker page.
 - `tools/make-edsa2cfg.mjs`: makes `EDSA2CFG.BIN`, `EDSA1CFG.BIN` and `EDNA3CFG.BIN`.
 - `tools/nk/`: CE ROM image tools: `list-nk.mjs` lists modules and files, `dump-registry.mjs` prints the ROM registry, `rom-layout-svg.mjs` draws the layout after `boot.nkp`.
 
@@ -114,7 +113,7 @@ Model notes: [Models](docs/models.md), [PW-SH4](docs/pwsh4.md), [PW-A7300](docs/
    - **Patches**: checked word and code patches to Sharp's modules, such as the volume fix and, on the A7300, the display hook.
 4. CE starts. bstart prepares the power manager and its idle timeouts, backlight, battery type and rotation, copies `pwsh2-boot/Windows` and the model's own `pwsh2-boot/PROFILE/Windows` into `\Windows`, then starts the program named in `pwsh2-boot/PROFILE/launch.txt`, or `pwsh2-boot/launch.txt`, and Debug Agent if `debug.txt` asks for it.
 
-`boot.nkp` is made from each Brain's own CE image: Sharp shipped more than one CE version. On a Brain's first boot from the card, U-Boot runs the [on-device generator](docs/on-device-generation.md) (`pwsh2-boot/nkgen.bin`) on the image in RAM with the release's drivers and profiles (`nkgen.pak`), and saves `boot.nkp` and its files in `pwsh2-boot/nk-<id>/`. The patch maker page and `tools/make-boot-nkp.mjs` make the same files from a copy of the image. U-Boot checks every patch against the image, so a `boot.nkp` for a different image changes nothing.
+`boot.nkp` is made from each Brain's own CE image: Sharp shipped more than one CE version. On a Brain's first boot from the card, U-Boot runs the [on-device generator](docs/on-device-generation.md) (`pwsh2-boot/nkgen.bin`) on the image in RAM with the release's drivers and profiles (`nkgen.pak`), and saves `boot.nkp` and its files in `pwsh2-boot/nk-<id>/`. `tools/make-boot-nkp.mjs` makes the same files from a copy of the image. U-Boot checks every patch against the image, so a `boot.nkp` for a different image changes nothing.
 
 All three recognise the PW-SH2, PW-SB1, PW-SH4, PW-A7300 and PW-G5300 images listed in [profiles/profiles.json](profiles/README.md) and add that Brain's drivers: [brain-display](https://github.com/grimace-sdk/brain-display), [brain-drivers](https://github.com/grimace-sdk/brain-drivers), registry additions and the Explorer desktop. The A7300 also gets its display patch, keyboard, sub screen driver and Control Panel.
 

@@ -37,7 +37,7 @@ Choosing **Linux** in the menu runs u-boot-brain's usual Linux boot, which reads
 
 Follow steps 2 and 4 of [Windows CE only](windows-ce.md): boot each Brain once to make its patches, and choose what to start.
 
-The Brainux boot partition is small. The release card files take about 3.5 MB, and each Brain's patches up to 2 MB more. The patch maker route needs about 30 MB more for the CE image copy while you make `boot.nkp`. The program you start from CE also needs room. To make more space, grow the FAT32 partition and move or grow the Linux root partition with a partitioning tool before setting up CE.
+The Brainux boot partition is small. The release card files take about 3.5 MB, and each Brain's patches up to 2 MB more. The command-line route needs about 30 MB more for the CE image copy while you make `boot.nkp`. The program you start from CE also needs room. To make more space, grow the FAT32 partition and move or grow the Linux root partition with a partitioning tool before setting up CE.
 
 ## Using It
 

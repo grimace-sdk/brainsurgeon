@@ -10,7 +10,7 @@ All on the first (FAT32) partition.
 | `EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSH4EXE.BIN`, `EDNA3EXE.BIN` | U-Boot, one build per platform ([EBOOT Files](#eboot-files)) |
 | `pwsh2-boot/nkgen.bin`, `nkgen.pak` | The patch generator and its inputs: drivers, profiles, registry additions and patches for every model ([boot.nkp](#bootnkp)) |
 | `pwsh2-boot/nk-CRC/` | Patches for one CE image, CRC being its identity: `boot.nkp`, the drivers it loads in `modules/`, and for a generated bundle `cache.txt` and `nkgen.log` ([Generated Bundles](#generated-bundles)) |
-| `pwsh2-boot/nk-LENGTH/boot.nkp` | Patches for one CE image of LENGTH bytes (8 hex digits), made by earlier patch makers and the command line, with the drivers it loads in `modules/` |
+| `pwsh2-boot/nk-LENGTH/boot.nkp` | Patches for one CE image of LENGTH bytes (8 hex digits), made by earlier releases and `make-boot-nkp.mjs`, with the drivers it loads in `modules/` |
 | `pwsh2-boot/boot.nkp` | Patches for this Brain's CE image, made by `tools/make-boot-nkp.mjs` |
 | `pwsh2-boot/no-nkgen` | Marker: do not run the generator |
 | `pwsh2-boot/boot-status.txt` | How the last boot from this card was patched ([Boot Status](#boot-status)) |
@@ -20,7 +20,7 @@ All on the first (FAT32) partition.
 | `pwsh2-boot/launch.txt` | What bstart starts on a Brain without its own launch file or profile |
 | `pwsh2-boot/PROFILE/` | Files only this profile uses, such as its `explorer.exe` |
 | `pwsh2-boot/PROFILE/Windows/` | Copied into `\Windows` at boot after `pwsh2-boot/Windows/`, on this profile's Brains only |
-| `pwsh2-boot/dump-nk` | Marker: copy the CE image to the card at the next Windows CE boot, for the patch maker and command line |
+| `pwsh2-boot/dump-nk` | Marker: copy the CE image to the card at the next Windows CE boot, for the command line |
 | `pwsh2-boot/nk-slot-A.bin`, `nk-slot-B.bin` | The copied CE image |
 | `pwsh2-boot/log` | Marker: write `pwsh2-boot/uboot.log` at each Windows CE boot, and log tablet mode changes to `pwsh2-boot/autorotate.log` |
 | `pwsh2-boot/autorotate.exe` | Applies the saved rotation at boot and follows tablet mode |
@@ -170,7 +170,7 @@ U-Boot uses the first of:
 
 If generation fails, U-Boot goes on to 3. With no bundle, CE starts unpatched. `load` paths are relative to the folder the bundle came from.
 
-The patch maker writes `nk-LENGTH`; on a card with the generator, add `pwsh2-boot/no-nkgen` to use it. `make-boot-nkp.mjs --folder crc` writes `nk-CRC`, which U-Boot uses as it stands.
+`make-boot-nkp.mjs` writes `nk-LENGTH` by default; on a card with the generator, add `pwsh2-boot/no-nkgen` to use it. `--folder crc` writes `nk-CRC`, which U-Boot uses as it stands.
 
 Text. Offsets, lengths and bytes are hex.
 

@@ -4,7 +4,7 @@ How the Brain makes `boot.nkp` and its modules at first boot, so a release card 
 
 ## Why
 
-Before the generator, `boot.nkp` had to be made from each user's own image, on the [patch maker](https://grimace-sdk.github.io/brainsurgeon/) page or with `tools/make-boot-nkp.mjs`. The output is derived from Sharp's image:
+Before the generator, `boot.nkp` had to be made from each user's own image, with `tools/make-boot-nkp.mjs` or the patch maker web page, since retired. The output is derived from Sharp's image:
 
 | Output | Sharp-derived content |
 | --- | --- |
@@ -529,7 +529,7 @@ CI's `test` job runs the fixture check and `run.sh`.
 ## What Stays in JS
 
 - `profiles/profiles.json` stays the source of truth. The pak is made from it at release.
-- The patch maker page and `make-boot-nkp.mjs` stay as they are: the reference implementation, the tool for images with no profile, and the home of the development options (`--debug-log`, `--replace-module`, `--registry`, `--patch-words`, `--no-skip`, `--slot` on eMMC dumps).
+- `make-boot-nkp.mjs` stays as it is: the reference implementation, the tool for images with no profile, and the home of the development options (`--debug-log`, `--replace-module`, `--registry`, `--patch-words`, `--no-skip`, `--slot` on eMMC dumps).
 - Their output keeps working on cards, in `nk-CRC` or `nk-LENGTH`, and is never overwritten ([transition](#page-and-cli-transition)).
 - JS changes to stay the reference: `imageIdentity()`, `--folder`, skipping on by default, `sharedCardFiles`, and the `pwsh2-boot/PROFILE/` card paths in `profiles.json`.
 - `tools/nk/` and `build-nk-image.mjs` are unaffected.

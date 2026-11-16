@@ -14,7 +14,7 @@ It is built as `brain-control.cpl`. The release card and every profile put it in
 
 ## Model Detection
 
-When a recognised image gets its profile, `make-boot-nkp` and the patch maker add to the boot registry:
+When a recognised image gets its profile, the generator and `make-boot-nkp` add to the boot registry:
 
 ```
 [HKEY_LOCAL_MACHINE\Software\Brain]

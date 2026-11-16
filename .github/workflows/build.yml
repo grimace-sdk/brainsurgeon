@@ -21,7 +21,7 @@ jobs:
         run: sh uboot/tests/run.sh
       - name: Tools
         run: |
-          for script in tools/*.mjs tools/lib/*.mjs tools/nk/*.mjs tools/test/*.mjs web/*.mjs; do node --check "$script"; done
+          for script in tools/*.mjs tools/lib/*.mjs tools/nk/*.mjs tools/test/*.mjs; do node --check "$script"; done
           node tools/make-boot-nkp.mjs --help
           node tools/make-icons.mjs --check
       - name: Generator
@@ -110,37 +110,3 @@ jobs:
             ${{ steps.package.outputs.zip }}
             builds/release/build-info*.txt
 
-  pages:
-    needs: release
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-      - uses: actions/download-artifact@v8
-        with:
-          name: build-pwsh2-first
-          path: build
-      - name: Fetch inputs
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: node tools/fetch-inputs.mjs
-      - name: Assemble site
-        run: sh tools/build-site.sh build site
-      - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: site
-      - id: deployment
-        uses: actions/deploy-pages@v5

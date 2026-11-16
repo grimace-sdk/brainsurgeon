@@ -55,9 +55,9 @@ Brains listed in [profiles/profiles.json](../profiles/README.md) get their drive
 | `module NAME` | Recognised Brains: loads a driver from `modules/` beside `boot.nkp` in place of Sharp's, or as a new one |
 | `words NAME` | PW-SH2 and PW-SB1: makes Sharp's sound driver follow the system volume |
 
-Skipping is on for every image: the skip list is by module name, and recognised Brains need it, since their drivers load into the skipped space. Only names present in the image are skipped. For an image the skip list was not checked against, the `skip` step in `nkgen.log` says so; if CE then misbehaves, make the bundle with the command line and `--no-skip` ([below](#3-patch-maker-and-command-line)).
+Skipping is on for every image: the skip list is by module name, and recognised Brains need it, since their drivers load into the skipped space. Only names present in the image are skipped. For an image the skip list was not checked against, the `skip` step in `nkgen.log` says so; if CE then misbehaves, make the bundle with the command line and `--no-skip` ([below](#3-command-line)).
 
-## 3. Patch Maker and Command Line
+## 3. Command Line
 
 For images or set-ups the generator can't handle, or for the development options, make the bundle on a computer from a copy of the CE image.
 
@@ -65,9 +65,7 @@ Create an empty `pwsh2-boot/dump-nk` on the card and boot the Brain. U-Boot copi
 
 The image is Sharp's software. Keep it for yourself; do not share it.
 
-Open the [patch maker](https://grimace-sdk.github.io/brainsurgeon/) and drop the `nk-slot-*.bin` onto it. The image stays in your browser; nothing is uploaded. It shows the patches it made and any notes, and offers a zip of card files: `pwsh2-boot/nk-LENGTH/boot.nkp`, the drivers it loads, and any other files that Brain needs in `pwsh2-boot/PROFILE/`. Unzip it onto the root of the card, keeping the folders. U-Boot uses a `nk-LENGTH` bundle only after the generator, so also create an empty `pwsh2-boot/no-nkgen`.
-
-Or, with [Node.js](https://nodejs.org) 20 or later, from the unzipped release:
+With [Node.js](https://nodejs.org) 20 or later, from the unzipped release:
 
 ```sh
 node tools/make-boot-nkp.mjs --image /path/to/card/pwsh2-boot/nk-slot-B.bin --folder crc --card /path/to/card
@@ -83,7 +81,7 @@ Make every Brain's bundle with the same release as the card. bstart comes from t
 
 bstart reads the Brain's profile from `HKLM\Software\Brain` `Profile` (`Model` with the punctuation removed if there is no `Profile`): `pwsh2`, `pwsb1`, `pwsh4` or `pwa7300`, the last for the PW-G5300 too. It reads `pwsh2-boot/PROFILE/launch.txt`, and `pwsh2-boot/launch.txt` if that is missing or the Brain has no profile.
 
-The release card has a `launch.txt` in each profile folder that starts Explorer from the same folder. A Brain without a profile needs a `launch.txt` of your own. Write it with the patch maker's launch.txt section or as UTF-8 or plain ASCII text:
+The release card has a `launch.txt` in each profile folder that starts Explorer from the same folder. A Brain without a profile needs a `launch.txt` of your own. Write it as UTF-8 or plain ASCII text:
 
 ```
 program=\Storage Card\MyApp\MyApp.exe

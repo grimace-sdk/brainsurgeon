@@ -4,7 +4,7 @@ One card works in every Brain below, and you can move it between them: each mode
 
 **PW-SH2**
 - U-Boot `EDSA2EXE.BIN`, profile `pwsh2`.
-- Tested on one PW-SH2 with CE V090, from a fresh card through the image copy and patch maker to the Explorer desktop, with suspend and resume.
+- Tested on one PW-SH2 with CE V090, from a fresh card to the Explorer desktop, with suspend and resume.
 
 **PW-SB1**
 - U-Boot `EDSA1EXE.BIN`, profile `pwsb1`.
