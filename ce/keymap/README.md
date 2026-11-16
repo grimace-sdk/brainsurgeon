@@ -44,6 +44,8 @@ The keyboard map key is Tool, left of HOME: pressing it shows the map over every
 
 It needs the profile's `keybd_EDNA2.dll`, which sends 機能 as a plain Shift, and brain-drivers' `EDNA2_slcd_ST7586.dll` for greys, the overlay and sub screen brightness.
 
+![The keyboard map on a PW-A7300's sub screen](images/pwa7300-keyboard-help.jpg)
+
 | Key | Does |
 | --- | --- |
 | 機能 | Shift, held or tapped once for the next key |
