@@ -21,9 +21,11 @@ jobs:
         run: sh uboot/tests/run.sh
       - name: Tools
         run: |
-          for script in tools/*.mjs tools/lib/*.mjs tools/nk/*.mjs web/*.mjs; do node --check "$script"; done
+          for script in tools/*.mjs tools/lib/*.mjs tools/nk/*.mjs tools/test/*.mjs web/*.mjs; do node --check "$script"; done
           node tools/make-boot-nkp.mjs --help
           node tools/make-icons.mjs --check
+      - name: Generator
+        run: sh tools/test/check-nkgen-fixture.sh
       - name: Applet icons
         run: |
           if grep -l CPlApplet ce/*.c ce/*/*.c | xargs grep -n -E 'LoadIconW|LoadImageW.*IMAGE_ICON'; then
@@ -67,7 +69,7 @@ jobs:
         run: |
           for model in pwsh2:edsa2exe.bin pwa7300:edna3exe.bin pwsh4:edsh4exe.bin; do
             for file in u-boot.bin ${model#*:} bstart.exe autorotate.exe crashlog.exe \
-              brain-control.cpl braincrypt.dll brainras.dll brainsip.dll keymap.exe debugmgr.exe usbserial.dll a7300-display.bin; do
+              brain-control.cpl braincrypt.dll brainras.dll brainsip.dll keymap.exe debugmgr.exe usbserial.dll a7300-display.bin nkgen.bin; do
               cmp builds/build-${model%%:*}-first/$file builds/build-${model%%:*}-second/$file
             done
             cat builds/build-${model%%:*}-first/build-info.txt

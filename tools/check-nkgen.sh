@@ -5,7 +5,8 @@ usage="Usage: NK_IMAGES=DIRECTORY sh tools/check-nkgen.sh BUILD_DIRECTORY
 
 Runs the JS reference (tools/make-boot-nkp.mjs --folder crc) and the host build of the generator (nkgen-host) on every
 *.bin image in NK_IMAGES, with and without --no-profile and --skip, and compares the card trees byte for byte.
-When both refuse an image, their messages must match. BUILD_DIRECTORY has bstart.exe and the CE programs (sh build.sh out)."
+When both refuse an image, their messages must match. BUILD_DIRECTORY has bstart.exe and the CE programs (sh build.sh out).
+NKGEN_ROOT replaces the repository as the source of profiles/, tools/skip-modules.json, inputs/ and binaries/ (tools/test/make-fixture-image.mjs makes one)."
 
 repository=$(cd "$(dirname "$0")/.." && pwd)
 build=${1:-}

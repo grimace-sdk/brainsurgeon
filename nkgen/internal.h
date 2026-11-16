@@ -20,6 +20,12 @@ void nkgen_restore(failure_point point) __attribute__((noreturn));
 #define return_to_failure_point(point) nkgen_restore(point)
 #endif
 
+#if defined(NKGEN_HOSTED)
+#define PRINTF_FORMAT(format_index, first_argument) __attribute__((format(printf, format_index, first_argument)))
+#else
+#define PRINTF_FORMAT(format_index, first_argument)
+#endif
+
 #define IMAGE_BASE 0x80200000u
 #define ROM_HEADER_SIZE 84u
 #define TOC_ENTRY_SIZE 32u
@@ -36,7 +42,6 @@ struct buffer {
     uint8_t *data;
     uint32_t length;
     uint32_t capacity;
-    int fixed;
 };
 
 struct step_list {
@@ -59,22 +64,22 @@ struct generator {
 void generator_start(struct generator *generator, struct nkgen_call *call);
 void generator_stop(void);
 struct generator *active_generator(void);
-void fail(int32_t code, const char *format, ...) __attribute__((noreturn, format(printf, 2, 3)));
+void fail(int32_t code, const char *format, ...) __attribute__((noreturn)) PRINTF_FORMAT(2, 3);
 #define check(condition, ...) do { if (!(condition)) fail(NKGEN_CHECK_FAILED, __VA_ARGS__); } while (0)
 void *arena_allocate(uint32_t size);
 void *arena_copy(const void *data, uint32_t size);
-char *text_format(const char *format, ...) __attribute__((format(printf, 1, 2)));
+char *text_format(const char *format, ...) PRINTF_FORMAT(1, 2);
 char *text_copy(const char *text);
-void log_line(const char *format, ...) __attribute__((format(printf, 1, 2)));
+void log_line(const char *format, ...) PRINTF_FORMAT(1, 2);
 void report_progress(const char *stage, uint32_t done, uint32_t total);
 void step_begin(const char *name);
-void step_end(const char *format, ...) __attribute__((format(printf, 1, 2)));
+void step_end(const char *format, ...) PRINTF_FORMAT(1, 2);
 void step_fail_open(int32_t result, const char *detail);
 
 void buffer_reserve(struct buffer *buffer, uint32_t extra);
 void buffer_append(struct buffer *buffer, const void *data, uint32_t length);
 void buffer_text(struct buffer *buffer, const char *text);
-void buffer_format(struct buffer *buffer, const char *format, ...) __attribute__((format(printf, 2, 3)));
+void buffer_format(struct buffer *buffer, const char *format, ...) PRINTF_FORMAT(2, 3);
 void buffer_format_list(struct buffer *buffer, const char *format, va_list arguments);
 void buffer_hex(struct buffer *buffer, const uint8_t *data, uint32_t length);
 void *buffer_push(struct buffer *buffer, uint32_t size);

@@ -102,7 +102,7 @@ struct rom_module *image_modules(struct rom_image *image)
             section->rva = read_u32(bytes, length, o32 + 4);
             section->physical_size = read_u32(bytes, length, o32 + 8);
             section->data_pointer = read_u32(bytes, length, o32 + 12);
-            section->data_offset = section->physical_size ? image_offset_of(image, section->data_pointer, section->physical_size) : NO_OFFSET;
+            section->data_offset = section->physical_size ? (int64_t)image_offset_of(image, section->data_pointer, section->physical_size) : NO_OFFSET;
             section->real_address = read_u32(bytes, length, o32 + 16);
             section->flags = read_u32(bytes, length, o32 + 20);
             section->compressed = (section->flags & COMPRESSED_SECTION_FLAG) != 0;

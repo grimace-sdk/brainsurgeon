@@ -1,6 +1,8 @@
 #include "internal.h"
 
 static struct generator *active;
+
+static uint32_t format_text(char *text, uint32_t capacity, const char *format, va_list arguments);
 static uint32_t crc32_table[256];
 
 void generator_start(struct generator *generator, struct nkgen_call *call)
@@ -9,6 +11,7 @@ void generator_start(struct generator *generator, struct nkgen_call *call)
     generator->call = call;
     generator->arena = call->arena;
     generator->arena_length = call->arena_length;
+    generator->steps.open = -1;
     active = generator;
     crc32_prepare();
 }
@@ -25,12 +28,12 @@ struct generator *active_generator(void)
 
 void fail(int32_t code, const char *format, ...)
 {
-    struct buffer message = { (uint8_t *)active->call->message, 0, sizeof(active->call->message) - 1, 1 };
+    uint32_t capacity = sizeof(active->call->message) - 1;
     va_list arguments;
     va_start(arguments, format);
-    buffer_format_list(&message, format, arguments);
+    uint32_t length = format_text(active->call->message, capacity, format, arguments);
     va_end(arguments);
-    message.data[message.length] = 0;
+    active->call->message[length < capacity ? length : capacity] = 0;
     active->call->result = code;
     return_to_failure_point(active->failure);
 }
@@ -131,7 +134,7 @@ void step_fail_open(int32_t result, const char *detail)
 
 void buffer_reserve(struct buffer *buffer, uint32_t extra)
 {
-    if (buffer->fixed || buffer->capacity - buffer->length >= extra) return;
+    if (buffer->capacity - buffer->length >= extra) return;
     uint32_t capacity = buffer->capacity ? buffer->capacity : 64;
     while (capacity - buffer->length < extra) {
         if (capacity > 0x7fffffffu) fail(NKGEN_ARENA_FULL, "Buffer of %u bytes is too large", buffer->length);
@@ -146,7 +149,6 @@ void buffer_reserve(struct buffer *buffer, uint32_t extra)
 void buffer_append(struct buffer *buffer, const void *data, uint32_t length)
 {
     buffer_reserve(buffer, length);
-    if (buffer->fixed && length > buffer->capacity - buffer->length) length = buffer->capacity - buffer->length;
     copy_bytes(buffer->data + buffer->length, data, length);
     buffer->length += length;
 }
@@ -170,7 +172,24 @@ void buffer_text(struct buffer *buffer, const char *text)
     buffer_append(buffer, text, text_length(text));
 }
 
-static void buffer_number(struct buffer *buffer, uint64_t value, uint32_t base, int negative, uint32_t width, char pad)
+struct text_writer {
+    char *text;
+    uint32_t capacity;
+    uint32_t length;
+};
+
+static void put_character(struct text_writer *writer, char character)
+{
+    if (writer->length < writer->capacity) writer->text[writer->length] = character;
+    writer->length++;
+}
+
+static void put_text(struct text_writer *writer, const char *text)
+{
+    while (*text) put_character(writer, *text++);
+}
+
+static void put_number(struct text_writer *writer, uint64_t value, uint32_t base, int negative, uint32_t width, char pad)
 {
     char digits[24];
     uint32_t count = 0;
@@ -179,20 +198,21 @@ static void buffer_number(struct buffer *buffer, uint64_t value, uint32_t base, 
         digits[count++] = (char)(digit < 10 ? '0' + digit : 'a' + digit - 10);
         value /= base;
     } while (value);
-    if (negative) buffer_append(buffer, "-", 1);
+    if (negative) put_character(writer, '-');
     while (width > count + (negative ? 1u : 0u)) {
-        buffer_append(buffer, &pad, 1);
+        put_character(writer, pad);
         width--;
     }
-    while (count) buffer_append(buffer, &digits[--count], 1);
+    while (count) put_character(writer, digits[--count]);
 }
 
-void buffer_format_list(struct buffer *buffer, const char *format, va_list arguments)
+static uint32_t format_text(char *text, uint32_t capacity, const char *format, va_list arguments)
 {
+    struct text_writer writer = { text, capacity, 0 };
     const char *cursor = format;
     while (*cursor) {
         if (*cursor != '%') {
-            buffer_append(buffer, cursor++, 1);
+            put_character(&writer, *cursor++);
             continue;
         }
         cursor++;
@@ -210,21 +230,32 @@ void buffer_format_list(struct buffer *buffer, const char *format, va_list argum
         }
         char conversion = *cursor ? *cursor++ : 0;
         if (conversion == 's') {
-            const char *text = va_arg(arguments, const char *);
-            buffer_text(buffer, text ? text : "");
+            const char *string = va_arg(arguments, const char *);
+            put_text(&writer, string ? string : "");
         } else if (conversion == 'c') {
-            char character = (char)va_arg(arguments, int);
-            buffer_append(buffer, &character, 1);
+            put_character(&writer, (char)va_arg(arguments, int));
         } else if (conversion == 'd') {
             int64_t value = long_long ? va_arg(arguments, long long) : va_arg(arguments, int32_t);
-            buffer_number(buffer, value < 0 ? (uint64_t)0 - (uint64_t)value : (uint64_t)value, 10, value < 0, width, pad);
+            put_number(&writer, value < 0 ? (uint64_t)0 - (uint64_t)value : (uint64_t)value, 10, value < 0, width, pad);
         } else if (conversion == 'u' || conversion == 'x') {
             uint64_t value = long_long ? va_arg(arguments, unsigned long long) : va_arg(arguments, uint32_t);
-            buffer_number(buffer, value, conversion == 'x' ? 16 : 10, 0, width, pad);
+            put_number(&writer, value, conversion == 'x' ? 16 : 10, 0, width, pad);
         } else if (conversion == '%') {
-            buffer_append(buffer, "%", 1);
+            put_character(&writer, '%');
         }
     }
+    return writer.length;
+}
+
+void buffer_format_list(struct buffer *buffer, const char *format, va_list arguments)
+{
+    va_list measure;
+    va_copy(measure, arguments);
+    uint32_t needed = format_text(0, 0, format, measure);
+    va_end(measure);
+    buffer_reserve(buffer, needed);
+    format_text((char *)buffer->data + buffer->length, needed, format, arguments);
+    buffer->length += needed;
 }
 
 void buffer_format(struct buffer *buffer, const char *format, ...)

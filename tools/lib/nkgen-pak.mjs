@@ -245,6 +245,7 @@ export async function makePak({ definition, skipList, bstart, release, load, rel
         }
         if (profile.a7300Display) add('a7300_display', 'a7300-display', await load(profile.a7300Display));
         for (const entry of profile.cardFiles ?? []) {
+            check(entry.path.startsWith('pwsh2-boot/') && !entry.path.includes('..'), `${profile.id} card path ${entry.path} is not under pwsh2-boot/`);
             if (entry.rom) add('card_file_rom', entry.path, encodeRomSpec(writer, entry.rom));
             else add('card_file', entry.path, await load(entry.file));
         }

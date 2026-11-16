@@ -1,17 +1,21 @@
 #ifndef NKGEN_H
 #define NKGEN_H
 
+#ifndef __ASSEMBLER__
 #include <stdint.h>
+#endif
 
 #define NKGEN_HEADER_MAGIC "NKGENBIN"
-#define NKGEN_HEADER_VERSION 1u
-#define NKGEN_ABI_VERSION 1u
-#define NKGEN_PAK_FORMAT 1u
+#define NKGEN_HEADER_VERSION 1
+#define NKGEN_ABI_VERSION 1
+#define NKGEN_PAK_FORMAT 1
 #define NKGEN_CALL_MAGIC 0x4347484eu
-#define NKGEN_HEADER_SIZE 72u
+#define NKGEN_HEADER_SIZE 72
 
 #define NKGEN_FLAG_NO_PROFILE 1u
 #define NKGEN_FLAG_SKIP 2u
+
+#ifndef __ASSEMBLER__
 
 enum nkgen_result {
     NKGEN_OK = 0,
@@ -74,5 +78,7 @@ struct nkgen_call {
 };
 
 int32_t nkgen_generate(struct nkgen_call *call);
+
+#endif
 
 #endif

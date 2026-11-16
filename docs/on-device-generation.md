@@ -1,6 +1,6 @@
 # On-Device Generation
 
-Design for making `boot.nkp` and its modules on the Brain at first boot, so a release card carries only our files and the profiles. Not implemented.
+Design for making `boot.nkp` and its modules on the Brain at first boot, so a release card carries only our files and the profiles. Milestones 1 to 5 are in place: the JS reference changes, the pak, the generator in `nkgen/` and its checks. The `bootstat.txt` slot is not, see [Open Questions](#open-questions). U-Boot does not call the generator yet.
 
 ## Why
 
@@ -493,23 +493,26 @@ Brain Control's About page shows `Image`, `Device`, `Bundle`, `Generator`, `Rele
 
 ## Equivalence Testing
 
-`tools/check-nkgen.sh` runs both generators on each image and compares:
+`tools/check-nkgen.sh BUILD` makes a pak from the repository and `BUILD`, builds `nkgen-host`, and runs both generators on each image in four modes (default, `--no-profile`, `--skip`, both):
 
 1. `node tools/make-boot-nkp.mjs --image IMAGE --build BUILD --folder crc --card JS_CARD`
 2. `nkgen-host --image IMAGE --pak nkgen.pak --card C_CARD`
-3. `diff -r` of the two card trees, less the C side's `cache.txt`, `nkgen.log` and `boot-status.txt`: `pwsh2-boot/nk-CRC/` and `pwsh2-boot/PROFILE/`. Any difference fails.
-4. Both folder names must equal `imageIdentity()` from `rom-image.mjs`.
+3. `diff -r` of the two card trees, less the C side's `nkgen.log`. Any difference fails.
+4. The C folder name must equal the identity the JS prints.
 
-It also runs each image with no profile (bstart-only) against `--no-profile`, and reports arena high-water and time per image.
+When both refuse an image, their messages must match. It reports arena high-water and time per run.
 
-Real-image equivalence runs locally only. Images come from a directory named by `NK_IMAGES`; the script refuses to run without it, and nothing in the repository names a local path. The known set is the five profile images (PW-SH2 V090 slot B, PW-SB1 slot B, PW-SH4 V100 slot B, PW-A7300, PW-G5300) plus the PW-SH2 V120 updater image, which has no profile and exercises the bstart-only path. The release checklist requires a passing local run.
+Real-image equivalence runs locally only. Images come from a directory named by `NK_IMAGES`; the script refuses to run without it, and nothing in the repository names a local path. The known set is the five profile images (PW-SH2 V090 slot B, PW-SB1 slot B, PW-SH4 V100 slot B, PW-A7300, PW-G5300) plus the PW-SH2 V120 updater image and the ED-SA1 V200 updater image, which have no profile. The release checklist requires a passing local run.
 
-Sharp's images never go into CI. CI gets:
+`tools/test/check-nkgen-arm.sh BUILD`, also local, runs `nkgen.bin` itself at `0x42000000` under `qemu-system-arm` with alignment checking on, and compares its outputs with `nkgen-host`'s on the same images.
 
-- A synthetic fixture image, built by `tools/test/make-fixture-image.mjs` from our own DLLs: ROM header, module and file tables, an uncompressed `default.fdf`, modules with `.pdata` and imports, and a test profile in a test pak that exercises skips, module replacement and renaming, file repointing, word patches, ROM DLL extraction and import redirection. The A7300 display patch needs Sharp's driver at fixed addresses, so it is covered only by real images.
-- Both generators on the fixture, compared as above.
-- The host generator under ASan and UBSan on mutated fixtures (truncations, flipped table bytes): every case must return an error, never crash or read outside its inputs.
-- The ARM build, checking the header and its stack-usage limit.
+Sharp's images never go into CI. CI's `test` job runs `tools/test/check-nkgen-fixture.sh`:
+
+- `tools/test/make-fixture-image.mjs` makes a synthetic image and a matching repository root: ROM header, module and file tables, a copy entry, an uncompressed `default.fdf`, a module with `.pdata`, imports and a moved data section, and a test profile that exercises skips, module replacement and renaming, new files, file repointing, registry merging, word patches, ROM DLL extraction, import redirection and patch bytes. Variants cover an unknown image, an unknown length and an image with no room for `bstart.exe`. The A7300 display patch needs Sharp's driver at fixed addresses, so it is covered only by real images.
+- `tools/check-nkgen.sh` on the fixture.
+- `nkgen-fuzz`, the generator under ASan and UBSan on mutated fixtures and paks (truncations, flipped bytes, bad header fields with the CRCs fixed up, small arenas): every run must return a result with a message.
+
+The `build` job builds `nkgen.bin` in `build.sh`. `nkgen/build.sh` checks its header and fails if the deepest stack path from `nkgen_generate`, from `-fcallgraph-info`, is over 8 KB; indirect calls are charged the largest frame.
 
 `uboot/tests/run.sh` gains the U-Boot side, in the existing stub harness: the identity range reader (against the fixture image, and truncated or corrupt first sectors), the `nkpatch.c` changes (bundle from RAM, `load` from the in-RAM table), the lookup order, the `cache.txt` parser, the `bootstat.txt` slot finder and the status writers. CI's `test` job runs the fixture check and `run.sh`.
 
@@ -583,4 +586,6 @@ Milestones 2 to 4 are most of the work. Each ends in a passing equivalence run, 
 
 ## Open Questions
 
-1. Moving `explorer.exe` from `explorer/` to `pwsh2-boot/pwa7300/` and the A7300 card files out of `pwsh2-boot/Windows/` changes paths the current A7300 card and launch file use. Agree this with the dual-model card work before milestone 1.
+1. The `bootstat.txt` slot does not fit the PW-SH4. Its image has 164 bytes between `physlast` and `ulRAMStart`. The `bstart` section's file entries (`bstart.exe` and four reserved) and name take 152; one more entry needs 180. The slot is left out of the JS and the generator until this is decided.
+2. Unknown images need skipping. `bstart.exe` (19,456 bytes) does not fit below `ulRAMStart` on the PW-SH2 V120 image (16,708 bytes free) or on the PW-SH4 image with no profile (164 bytes), so the bstart-only bundle with no skips is refused. With `--skip` (`NKGEN_FLAG_SKIP`) both images get a bundle. The ED-SA1 V200 image has room.
+3. Every profile lists the common card files (`pwsh2-boot/Windows/brain-control.cpl`, `pwsh2-boot/Keymap.exe`, `pwsh2-boot/debug/`), so they are in the generator's outputs too. U-Boot can write them, skip them, or the profiles can drop them once the release card carries them.

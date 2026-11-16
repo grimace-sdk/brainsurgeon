@@ -93,6 +93,8 @@ sh /source/ce/debug-log/build.sh "$work/debug-log"
 cp "$work/debug-log/debug-log.bin" /out/
 sh /source/ce/a7300-display/build.sh "$work/a7300-display" > /dev/null
 cp "$work/a7300-display/a7300-display.bin" /out/
+sh /source/nkgen/build.sh "$work/nkgen" arm "${BRAINSURGEON_VERSION:-unknown}"
+cp "$work/nkgen/nkgen.bin" /out/
 
 {
     echo "brainsurgeon ${BRAINSURGEON_VERSION:-unknown}"
@@ -107,7 +109,7 @@ cp "$work/a7300-display/a7300-display.bin" /out/
     arm-none-eabi-gcc --version | head -1
     echo "SOURCE_DATE_EPOCH $SOURCE_DATE_EPOCH"
     cd /out && sha256sum u-boot.bin "$boot_file" bstart.exe autorotate.exe crashlog.exe \
-        brain-control.cpl braincrypt.dll brainras.dll brainsip.dll keymap.exe debugmgr.exe usbserial.dll debug-log.bin a7300-display.bin
+        brain-control.cpl braincrypt.dll brainras.dll brainsip.dll keymap.exe debugmgr.exe usbserial.dll debug-log.bin a7300-display.bin nkgen.bin
 } > /out/build-info.txt
 chown -R "$HOST_UID:$HOST_GID" /out
 cat /out/build-info.txt

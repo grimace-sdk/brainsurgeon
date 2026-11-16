@@ -93,6 +93,7 @@ node tools/make-boot-nkp.mjs --image nk-slot-B.bin --build out --card /path/to/c
 - `tools/lib/`: CE ROM image, registry, LZX and `boot.nkp` code, shared by the command-line tools and the web page.
 - `tools/make-boot-nkp.mjs`: makes `boot.nkp` and the card files from a CE image.
 - `tools/make-nkgen-pak.mjs`: makes `nkgen.pak`, the inputs for the [on-device generator](docs/on-device-generation.md), from the profiles; `--describe` prints one.
+- `nkgen/`: the [on-device generator](docs/on-device-generation.md), `nkgen.bin` for U-Boot and `nkgen-host`, made by `nkgen/build.sh`. `tools/check-nkgen.sh` compares it with `make-boot-nkp.mjs`.
 - `profiles/`: per-device drivers, registry additions and patches.
 - `binaries/`: `explorer.exe` for every model and the A7300 `gwes.dll` and `ceshell.dll`, shipped as built.
 - `web/`: the patch maker page.
