@@ -2,6 +2,8 @@
 
 Turn a cheap Japanese Sharp Brain Dictionary into an English Windows CE Handheld with nothing but a microSD card. Pull the card and it returns to stock.
 
+![A PW-SH2, PW-A7300, PW-SH4 and PW-G5300 running Windows CE](docs/images/brains.jpg)
+
 One card serves every supported model ([Models](docs/models.md)). Its boot menu offers:
 
 - **Windows CE**: a desktop instead of the dictionary, with faster open-source display, board, touch and sub screen drivers, rotation, a Control Panel and full-screen app support.
