@@ -223,6 +223,15 @@ int main(int argc, char **argv)
 	status_text = card_text_of("pwsh2-boot/boot-status.txt");
 	expect(strstr(status_text, "bundle=cached\n") != NULL, "flow: status says cached");
 	expect(fake_write_count == writes + 1, "flow: second boot writes only the status");
+	start_boot(identity);
+	writes = fake_write_count;
+	expect(brain_bundle_choose(image_length, true) == BRAIN_BUNDLE_GENERATE &&
+		       !brain_nkgen_generate(load_region(), image_length) && !brain_nkgen_save(),
+	       "flow: generating again onto the same card succeeds");
+	expect(fake_write_count == writes + 2, "flow: generating again writes only nkgen.log and cache.txt");
+	start_boot(identity);
+	expect(brain_bundle_choose(image_length, false) == BRAIN_BUNDLE_READY && !strcmp(status.bundle, "cached"),
+	       "flow: the cache is still valid after generating again");
 	printf("%s", status_text);
 	if (argc > 3)
 		dump_card(argv[3]);

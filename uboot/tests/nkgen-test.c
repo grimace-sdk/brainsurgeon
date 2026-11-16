@@ -27,6 +27,7 @@ static enum fake_generator_mode generator_mode;
 static unsigned int generator_calls;
 static char stages[256];
 static const char module_bytes[] = "ABCD";
+static const char *card_contents = "card";
 
 static void expect(bool condition, const char *name)
 {
@@ -104,7 +105,7 @@ static int fake_generate(struct nkgen_call *generator_call)
 	outputs[1].length = 4;
 	outputs[2].path = arena_text(&cursor, generator_mode == FAKE_BAD_PATH ? "pwsh2-boot/../EDSA2EXE.BIN" :
 							     "pwsh2-boot/pwtest/Windows/card.txt");
-	outputs[2].data = (const u8 *)arena_text(&cursor, "card");
+	outputs[2].data = (const u8 *)arena_text(&cursor, card_contents);
 	outputs[2].length = 4;
 	for (int index = 0; index < 3; index++)
 		outputs[index].crc32 = crc32(0, outputs[index].data, outputs[index].length);
@@ -440,6 +441,53 @@ static void check_failures(void)
 	       "card write fails: status says so");
 }
 
+static unsigned int writes_of(const char *path)
+{
+	struct fake_file *file = fake_find(path);
+
+	return file ? file->writes : 0;
+}
+
+static void generate_and_save(bool regenerate)
+{
+	begin();
+	expect(brain_bundle_choose(TEST_IMAGE_LENGTH, regenerate) == BRAIN_BUNDLE_GENERATE &&
+		       !brain_nkgen_generate(map_sysmem(0x40200000, TEST_IMAGE_LENGTH), TEST_IMAGE_LENGTH) && !brain_nkgen_save(),
+	       regenerate ? "rewrite: regenerated and saved" : "rewrite: generated and saved");
+}
+
+static void check_rewrite_only_changes(void)
+{
+	unsigned int before;
+
+	fake_card_clear();
+	put_generator("v1.0", 2, false);
+	put_pak(1);
+	generator_mode = FAKE_GOOD;
+	card_contents = "card";
+	generate_and_save(false);
+	before = fake_write_count;
+	generate_and_save(true);
+	expect(writes_of(TEST_FOLDER "/boot.nkp") == 1 && writes_of(TEST_FOLDER "/modules/test.dll") == 1 &&
+		       writes_of("pwsh2-boot/pwtest/Windows/card.txt") == 1,
+	       "rewrite: identical outputs on the card are not written again");
+	expect(fake_write_count == before + 2 && fake_find(TEST_FOLDER "/cache.txt")->written_at > before &&
+		       fake_find(TEST_FOLDER "/nkgen.log")->written_at > before &&
+		       strstr(card_text(TEST_FOLDER "/cache.txt"), "file pwsh2-boot/pwtest/Windows/card.txt 4 ") &&
+		       strstr(card_text(TEST_FOLDER "/nkgen.log"), "unchanged " TEST_FOLDER "/boot.nkp") &&
+		       strstr(card_text(TEST_FOLDER "/nkgen.log"), "0 of 3 files written"),
+	       "rewrite: cache.txt and nkgen.log still written, every file listed");
+	card_contents = "cart";
+	generate_and_save(true);
+	expect(writes_of("pwsh2-boot/pwtest/Windows/card.txt") == 2 && writes_of(TEST_FOLDER "/boot.nkp") == 1 &&
+		       !strcmp(card_text("pwsh2-boot/pwtest/Windows/card.txt"), "cart"),
+	       "rewrite: only the changed file is written");
+	card_contents = "card";
+	begin();
+	expect(brain_bundle_choose(TEST_IMAGE_LENGTH, false) == BRAIN_BUNDLE_READY && !strcmp(status.bundle, "cached"),
+	       "rewrite: next boot uses the cache");
+}
+
 static void check_stage_names(void)
 {
 	expect(generator_stages[ARRAY_SIZE(generator_stages) - 1].start + generator_stages[ARRAY_SIZE(generator_stages) - 1].share ==
@@ -458,6 +506,7 @@ int main(void)
 	check_lookup_without_generator();
 	check_first_and_second_boot();
 	check_failures();
+	check_rewrite_only_changes();
 	check_stage_names();
 	return failures ? 1 : 0;
 }
