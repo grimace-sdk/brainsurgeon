@@ -3,9 +3,13 @@
 #include "brain-control-resource.h"
 #include "board_ioctl.h"
 
-#define ABOUT_LENGTH 2048
+#define ABOUT_LENGTH 8192
 #define BOARD_DEVICE L"BRD1:"
 #define MODULE_NAME_LENGTH 64
+#define BOOT_KEY BRAIN_KEY L"\\Boot"
+#define BOOT_STEPS_KEY BOOT_KEY L"\\Steps"
+#define BOOT_SECTIONS_KEY BOOT_KEY L"\\Sections"
+#define BOOT_NAME_LENGTH 128
 #define WIDE_TEXT(text) L##text
 #define WIDE(text) WIDE_TEXT(text)
 
@@ -114,6 +118,62 @@ static void append_modules(WCHAR *about)
     }
 }
 
+static void read_boot(const WCHAR *name, WCHAR *value)
+{
+    registry_read_string(HKEY_LOCAL_MACHINE, BOOT_KEY, name, value, TEXT_LENGTH);
+}
+
+static void append_boot(WCHAR *about)
+{
+    WCHAR first[TEXT_LENGTH], second[TEXT_LENGTH], third[TEXT_LENGTH], value[3 * TEXT_LENGTH];
+
+    read_boot(L"Bundle", first);
+    read_boot(L"Folder", second);
+    wsprintfW(value, second[0] ? L"%s, %s" : L"%s", first, second);
+    append(about, L"Boot bundle", first[0] ? value : L"");
+    read_boot(L"Image", first);
+    read_boot(L"Device", second);
+    read_boot(L"ImageCrc", third);
+    wsprintfW(value, L"%s%s%s%s%s", first[0] ? first : L"not identified", second[0] ? L", " : L"", second,
+        third[0] ? L", identity " : L"", third);
+    append(about, L"Boot image", value);
+    read_boot(L"Generator", first);
+    read_boot(L"Release", second);
+    wsprintfW(value, second[0] ? L"%s, pak %s" : L"%s", first[0] ? first : L"not used", second);
+    append(about, L"Generator", value);
+    wsprintfW(value, L"%u applied, %u skipped", registry_read_dword(HKEY_LOCAL_MACHINE, BOOT_KEY, L"SectionsApplied", 0),
+        registry_read_dword(HKEY_LOCAL_MACHINE, BOOT_KEY, L"SectionsSkipped", 0));
+    append(about, L"Patches", value);
+    read_boot(L"Error", first);
+    append(about, L"Boot error", first[0] ? first : L"none");
+}
+
+static void append_boot_details(WCHAR *about, const WCHAR *heading, const WCHAR *key_name)
+{
+    WCHAR name[BOOT_NAME_LENGTH], value[TEXT_LENGTH];
+    DWORD name_length, value_size, type, index;
+    HKEY key;
+
+    if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, key_name, 0, 0, &key) != ERROR_SUCCESS)
+        return;
+    if (wcslen(about) + wcslen(heading) + 4 < ABOUT_LENGTH) {
+        wcscat(about, L"\r\n");
+        wcscat(about, heading);
+        wcscat(about, L"\r\n");
+    }
+    for (index = 0;; index++) {
+        name_length = BOOT_NAME_LENGTH;
+        value_size = sizeof(value) - sizeof(WCHAR);
+        if (RegEnumValueW(key, index, name, &name_length, NULL, &type, (BYTE *)value, &value_size) != ERROR_SUCCESS)
+            break;
+        if (type != REG_SZ)
+            continue;
+        value[value_size / sizeof(WCHAR)] = 0;
+        append(about, name, value);
+    }
+    RegCloseKey(key);
+}
+
 static void fill(HWND page)
 {
     static WCHAR about[ABOUT_LENGTH];
@@ -125,6 +185,7 @@ static void fill(HWND page)
     append_registry(about, L"Model", L"Model");
     append_registry(about, L"Profile", L"Profile");
     append_registry(about, L"CE image", L"Image");
+    append_boot(about);
     memset(&version, 0, sizeof(version));
     version.dwOSVersionInfoSize = sizeof(version);
     value[0] = 0;
@@ -138,6 +199,8 @@ static void fill(HWND page)
     wsprintfW(value, L"%u x %u", GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN));
     append(about, L"Screen", value);
     append_modules(about);
+    append_boot_details(about, L"Boot steps", BOOT_STEPS_KEY);
+    append_boot_details(about, L"Boot patches", BOOT_SECTIONS_KEY);
     SetDlgItemTextW(page, IDC_ABOUT_TEXT, about);
 }
 

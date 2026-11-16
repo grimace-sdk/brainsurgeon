@@ -1,6 +1,6 @@
 # On-Device Generation
 
-Design for making `boot.nkp` and its modules on the Brain at first boot, so a release card carries only our files and the profiles. Milestones 1 to 5 are in place: the JS reference changes, the pak, the generator in `nkgen/` and its checks. The `bootstat.txt` slot is not, see [Open Questions](#open-questions). U-Boot does not call the generator yet.
+Design for making `boot.nkp` and its modules on the Brain at first boot, so a release card carries only our files and the profiles. Milestones 1 to 7 are in place: the JS reference changes, the pak, the generator in `nkgen/` and its checks, U-Boot's lookup, generation and boot status (`board/sharp/common/wince/nkgen.c` in u-boot-brain), and bstart and Brain Control reading the status. None of it has run on a Brain yet.
 
 ## Why
 
@@ -39,9 +39,8 @@ The JS generator stays the reference implementation. A host build of the C gener
 | `pwsh2-boot/nk-CRC/modules/*` | Our drivers and the A7300 `gwes.dll` and `ceshell.dll` (copied out of the pak), the merged `default.fdf`, ROM-derived modules | Made on the Brain |
 | `pwsh2-boot/nk-CRC/cache.txt` | Stamp: what the cache was made from, written last | Made on the Brain |
 | `pwsh2-boot/nk-CRC/nkgen.log` | Generator log from the last generation or failure for this image | Made on the Brain |
-| `pwsh2-boot/nk-CRC/boot-status.txt` | Patch status of the last boot of this image | Made on the Brain |
 | `pwsh2-boot/PROFILE/` | Profile card files: for `pwa7300`, `explorer.exe`, and in `Windows/` `CPLBRAIN.CPL` (ROM-derived), `braincrypt.dll`, `brainras.dll`, `brainsip.dll` | Made on the Brain |
-| `pwsh2-boot/boot-status-MODEL.txt` | Status of the last boot by this U-Boot build that found no cache folder | Made on the Brain |
+| `pwsh2-boot/boot-status.txt` | Patch status of the last boot from this card, for bstart and bug reports | Made on the Brain |
 
 Card files every profile needs (`pwsh2-boot/Windows/brain-control.cpl`, `pwsh2-boot/Keymap.exe`, `pwsh2-boot/debug/debugmgr.exe` and `usbserial.dll`) are listed once, in `sharedCardFiles` in `profiles.json`. They are stored once in the pak and are outputs of every generation that applies a profile. All other release card files (the U-Boots, `EDSA2CFG.BIN`, `autorotate.exe`, `crashlog.exe`, the launch files) are ours, common to every model, and ship as now.
 
@@ -83,8 +82,6 @@ The patch maker page and `make-boot-nkp.mjs` move to `nk-CRC` in two releases, a
 | First with the generator | Write `nk-LENGTH` by default; print the CRC; `--folder crc` writes `nk-CRC` | Reads `nk-CRC`, then `nk-LENGTH` |
 | Next | Write `nk-CRC` by default; `--folder length` (a page option, "for U-Boot before vX") for cards with an older U-Boot | Unchanged |
 
-Bundles from the page and CLI also gain the `bootstat.txt` slot (see [Patch Status](#patch-status)), since they share the generator's `bstart` section. An older U-Boot applies them as before and leaves the slot empty.
-
 ## First Boot, Step by Step
 
 U-Boot side (`bootsharpce`):
@@ -94,12 +91,12 @@ U-Boot side (`bootsharpce`):
 | 1 | Find the slot and length from the trailer (unchanged) | | |
 | 2 | Read the identity range and compute the CRC | | |
 | 3 | `nk-CRC/cache.txt` valid: take the normal path (skipping read, apply, boot) | | |
-| 4 | Load and check `nkgen.bin` and `nkgen.pak`. Missing or invalid: continue the [lookup](#bundle-lookup) | | |
-| 5 | Read the whole image, no skips | `Reading Windows CE` | 0 to 35% |
+| 4 | Load and check `nkgen.bin` and `nkgen.pak`. Missing or invalid: continue the [lookup](#bundle-lookup), with the reason in the status | | |
+| 5 | Read the whole image, no skips | `First start: reading Windows CE` | 0 to 35% |
 | 6 | Call the generator | Generator's own | 35 to 75% |
 | 7 | Write the outputs, then `cache.txt` | `Saving to card` | 75 to 90% |
 | 8 | Zero the skip spans in RAM, apply `boot.nkp` from RAM, with `load` lines served from the output list | `Patching` | 90 to 100% |
-| 9 | Write the status into the `bootstat.txt` slot in RAM and to the card if it changed, start CE | | |
+| 9 | Write `pwsh2-boot/boot-status.txt` if its text changed, start CE | | |
 
 Step 8 means a first boot never depends on the card write succeeding. The skip spans are zeroed after generation because the generator needs to see the whole image, and the `load` check requires a cleared target.
 
@@ -112,7 +109,7 @@ Generator side, mapped to the JS:
 | G3 | `profiles.mjs` `deriveFromRom`, `rom-dll.mjs`, `pe-imports.mjs` | Make ROM-derived modules and card files: extract a relocatable DLL, redirect imports, check-and-patch bytes |
 | G4 | `boot-nkp.mjs` `skipSpans` | Skip spans from the skip list, merged, aligned, checked against kept regions. Only names present in the image are skipped. On for every image (`NKGEN_FLAG_SKIP`); without it, no skips and no profile |
 | G5 | `registry-edit.mjs`, `flat-registry.mjs` | Read `default.fdf`, set `init\Launch50`, apply profile registry and the `Software\Brain` model keys, write it back |
-| G6 | `boot-nkp.mjs` `appendFileRecords`, `bstartPatch` | `bstart` section: append `bstart.exe` and the 4 KB `bootstat.txt` slot, reserve file entries, rewrite `Launch50` in place |
+| G6 | `boot-nkp.mjs` `appendFileRecords`, `bstartPatch` | `bstart` section: append `bstart.exe`, reserve file entries, rewrite `Launch50` in place |
 | G7 | `a7300-display.mjs`, `appendCodeRecords` | A7300 display hook section |
 | G8 | `moduleReplacementPatch`, `fileRepointPatch` | One section per module: carve a span, add or repoint a file entry, rename Sharp's module, `load` line |
 | G9 | `word-patch.mjs` | One section per word patch file |
@@ -150,7 +147,7 @@ About 3,500 C lines for about 1,600 JS lines, in about 14 files under `nkgen/`. 
 | FAT write, `mkdir`, `unlink` | Present (`FAT_WRITE` is selected by `SHARP_WINCE`). No `rename` |
 | CRC-32 | `u-boot/crc.h`, used by `load` checks |
 | SHA-256 | Not enabled. The generator does its own, so U-Boot needs none |
-| Progress bar | `brain_menu_progress(done, total)`, being extended by another agent to show stage text |
+| Progress bar | `brain_progress_begin`, `_step`, `_update`; `brain_progress_stage(text)` added for the stage text |
 | Console log to card | `savelog` and the boot log; generator log lines also go through it |
 
 ### Port Pitfalls
@@ -292,6 +289,8 @@ struct nkgen_call {
 	const struct nkgen_step *steps;
 	uint32_t known;
 	const char *profile;
+	const char *device;
+	const char *release;
 	uint32_t identity_crc32;
 	uint8_t image_sha256[32];
 	char message[160];
@@ -311,6 +310,8 @@ int32_t nkgen_generate(struct nkgen_call *call);
 - `result` is 0, or an error: bad call block, bad pak, check failed (with `message`), arena full. An unknown image is not an error: `known` is 0 and the bstart-only outputs are returned.
 - `steps` lists each generator step (identify, ROM modules, registry, each section) with its result and a short detail, for the [patch status](#patch-status).
 - `log` receives the JS `notes` and per-step summaries. U-Boot prints them to the console and keeps them for `nkgen.log`.
+- `device` and `release` are the matched image's device and the pak's release, for the status. `NKGEN_ABI_VERSION` is 2 since they were added.
+- U-Boot keeps its global data pointer in r9 and needs it intact in the `progress` and `log` callbacks. The generator is built with `-ffixed-r9`, and `nkgen/build.sh` fails if `nkgen.elf` uses r9.
 - Stack use is bounded and checked at build time with `-fstack-usage` (target under 8 KB); the generator runs on U-Boot's stack with interrupts as U-Boot left them (none in use).
 
 ### How U-Boot Finds and Validates It
@@ -346,13 +347,13 @@ The map is the same for every model's U-Boot build, so one `nkgen.bin` serves th
 
 ## Progress
 
-The progress bar shows a short stage text and a number. Both U-Boot and the generator report through one callback shape:
+The progress bar shows a short stage text in place of the menu labels. Both U-Boot and the generator report through one callback shape:
 
 ```c
 void progress(void *context, const char *stage, uint32_t done, uint32_t total);
 ```
 
-`stage` is at most 24 characters and stays valid until the next call. `done` rises from 0 to `total` within a stage; a new `stage` starts again from 0. U-Boot maps the generator's calls into its 35 to 75% band and passes the stage text through, so the bar reads, for example, `Identifying image 40%`. The function U-Boot calls (`brain_menu_progress` with a stage argument, or a new `brain_menu_stage`) is for the progress work to settle; this design only needs it to take text plus done/total.
+`stage` is at most 24 characters and stays valid until the next call. `done` rises from 0 to `total` within a stage; a new `stage` starts again from 0. U-Boot maps the generator's calls into its 35 to 75% band and shows the stage text with `brain_progress_stage`.
 
 Generator stages and their share of its band:
 
@@ -363,7 +364,7 @@ Generator stages and their share of its band:
 | `Merging registry` | 10% |
 | `Building patches` | 20% |
 
-On a 454 MHz ARM926, a software SHA-256 of 30 MB is estimated at 2 to 5 s; measure in milestone 5. Before the first generator call, the menu shows a line such as `Preparing Windows CE for this Brain (first start only)`, so the longer first boot is explained.
+On a 454 MHz ARM926, a software SHA-256 of 30 MB is estimated at 2 to 5 s; to be measured on hardware. The whole-image read before the generator shows `First start: reading Windows CE`, so the longer first boot is explained. Writing the outputs shows `Saving to card` and applying them `Patching`.
 
 ## Cache Invalidation
 
@@ -372,19 +373,23 @@ The folder name already pins the image (see [Image Identity](#image-identity)). 
 ```
 generator 0.4.0
 pak 3f2a91c0
+release v0.5.0
 image-sha256 4bd8e2c4c519ddcf0cacb29c3ece428a5ea917e82e31441687a502097a9cfc68
 image-length 1d4aebc
 known yes
 profile pwsh2
+device PW-SH2
 file pwsh2-boot/nk-8c1f22e0/boot.nkp e962 51a2c7f3
 file pwsh2-boot/nk-8c1f22e0/modules/default.fdf 29ee9 0d4b11a2
+step identify=ok: PW-SH2 CE V090, slot B, profile pwsh2
+step skip=ok: 21 spans
 ```
 
 - `generator` and `pak` are compared with the `nkgen.bin` header version and the pak CRC-32, read with two small reads. Any difference regenerates, so a new card release always rebuilds. If the generator is missing from the card, a cache is used as it stands.
-- `image-sha256`, `known` and `profile` are kept for the [patch status](#patch-status), so later boots report them without hashing.
-- `file` lines let U-Boot check `boot.nkp` after reading it. Modules are already checked by the `load` lines.
+- `release`, `image-sha256`, `known`, `profile`, `device` and the `step` lines are kept for the [patch status](#patch-status), so later boots report them without hashing or loading the pak.
+- `file` lines let U-Boot check `boot.nkp` after reading it; a different size or CRC-32 regenerates. Modules are already checked by the `load` lines.
 - A `boot.nkp` with no `cache.txt` was made by the page, the CLI, the pw-sh2 card build or by hand. U-Boot uses it as it stands and never overwrites it.
-- Deleting `nk-CRC/cache.txt`, or `bootsharpce generate`, forces a rebuild of that image's cache only. There is no card-wide regenerate marker, since on a shared card the first model to boot would consume it.
+- Deleting the `nk-CRC` folder, or `bootsharpce generate` at the U-Boot console, forces a rebuild of that image's cache only. Deleting only `cache.txt` leaves a `boot.nkp` that is used as it stands. There is no card-wide regenerate marker, since on a shared card the first model to boot would consume it.
 
 ## Patch Status
 
@@ -392,13 +397,9 @@ Each boot records how CE was patched, for Brain Control's About page and for bug
 
 ### Status Text
 
-U-Boot builds the status as `key=value` lines and puts it in three places:
+U-Boot builds the status as `key=value` lines and writes them to `pwsh2-boot/boot-status.txt` on every boot. It reads the old file (one small read) and writes only when the text changes, so a normal cached boot costs no write. Only one Brain boots from a card at a time, so the file describes the boot bstart is running in, on a card shared between models too. If the write fails, bstart sees the previous boot's status.
 
-- The `bootstat.txt` slot in RAM, for bstart. Every bundle's `bstart` section appends a 4 KB zero-filled ROM file, `bootstat.txt`, after `bstart.exe` (zeros over zeros, so it adds no records to `boot.nkp`, only a file entry and name). After applying the bundle, U-Boot finds `bootstat.txt` in the patched file table (about 20 lines: walk `numfiles` entries from the ROM header the identity read already located) and writes the status into it, truncated to 4 KB. bstart reads `\Windows\bootstat.txt`. This is per boot, needs no card write, and cannot be confused with another model's status on a shared card.
-- `pwsh2-boot/nk-CRC/boot-status.txt`, the last boot of that image, for bug reports. U-Boot reads the old file (one small read) and writes it only when its contents change, so a normal cached boot costs no write.
-- `pwsh2-boot/boot-status-MODEL.txt` instead, when there is no cache folder to write to (identity unreadable, or a `nk-LENGTH` or `boot.nkp` bundle). `MODEL` is the U-Boot build's `CONFIG_SHARP_WINCE_MODEL` (`pwsh2`, `pwa7300`, `pwsh4`); the PW-SH2 and PW-SB1 builds share `pwsh2`.
-
-`pwsh2-boot/nk-CRC/nkgen.log` is written on each generation or generation failure for that image, replacing the previous one: the generator's log lines, step results and timings, and U-Boot's write results. Cached boots leave it alone. A failure with no CRC goes to `pwsh2-boot/nkgen-MODEL.log`.
+`pwsh2-boot/nk-CRC/nkgen.log` is written on each generation or generation failure for that image, replacing the previous one: the generator's log lines, step results and timings, and U-Boot's write results. Cached boots leave it alone. A `nkgen.bin` or `nkgen.pak` that fails its checks is reported in the status only.
 
 The status text:
 
@@ -413,9 +414,11 @@ bundle=cached
 folder=pwsh2-boot/nk-8c1f22e0
 generator=0.4.0
 release=v0.5.0
+uboot=pwsh2
 error=
-step identify=ok
-step registry=ok
+step identify=ok: PW-SH2 CE V090, slot B, profile pwsh2
+step skip=ok: 21 spans
+step registry=ok: default.fdf 172521 bytes, 30 entries
 section bstart=applied
 section module board.dll=applied
 section words ymu818_wavdev.dll=skipped: expected bytes differ at line 3
@@ -423,19 +426,20 @@ section words ymu818_wavdev.dll=skipped: expected bytes differ at line 3
 
 | Key | Values |
 | --- | --- |
-| `image` | `known` (in the pak) or `unknown` |
+| `image` | `known` (in the pak) or `unknown`; empty when no generator ran and there is no `cache.txt` |
 | `profile`, `device` | From the pak; empty for an unknown image |
 | `image-crc`, `image-length`, `image-sha256` | Identity CRC, length, SHA-256 (from `cache.txt` on cached boots; empty when no generator ran) |
 | `bundle` | `generated` (made this boot), `cached` (`nk-CRC` with `cache.txt`), `existing` (any bundle with no `cache.txt`), `failed` (generation failed and nothing else was found), `none` (no bundle, unpatched CE) |
 | `folder` | Bundle folder used |
 | `generator`, `release` | `nkgen.bin` version and pak release; empty when not used |
+| `uboot` | The U-Boot build's `CONFIG_SHARP_WINCE_MODEL`: `pwsh2` (PW-SH2 and PW-SB1), `pwa7300`, `pwsh4` |
 | `error` | Generation or load error message, else empty |
-| `step NAME` | Generator step result, on generated boots and copied from `nkgen.log`'s summary on cached ones |
+| `step NAME` | Generator step result, on generated boots and copied from `cache.txt` on cached ones. `step skip` says when the skip list was checked against a different image |
 | `section NAME` | `applied`, or `skipped:` and the applier's reason |
 
 ### Registry
 
-bstart reads `\Windows\bootstat.txt` at startup, before it copies the card's `Windows` folders and starts the launch program, and writes it into the RAM registry under `HKLM\Software\Brain\Boot`. `profile` also tells bstart which `pwsh2-boot/PROFILE/Windows/` to copy, and is there for the per-model launch file choice:
+bstart (`ce/boot-status.c`) reads `\Storage Card\pwsh2-boot\boot-status.txt` once the card is mounted, before it copies the card's `Windows` folders and starts the launch program, and writes it into the RAM registry under `HKLM\Software\Brain\Boot`:
 
 | Value | Type | From |
 | --- | --- | --- |
@@ -449,10 +453,11 @@ bstart reads `\Windows\bootstat.txt` at startup, before it copies the card's `Wi
 | `Folder` | `REG_SZ` | `folder` |
 | `Generator` | `REG_SZ` | `generator` |
 | `Release` | `REG_SZ` | `release` |
+| `UBoot` | `REG_SZ` | `uboot` |
 | `Error` | `REG_SZ` | `error` |
 | `SectionsApplied`, `SectionsSkipped` | `REG_DWORD` | Counts of `section` lines |
 
-`HKLM\Software\Brain\Boot\Steps` and `HKLM\Software\Brain\Boot\Sections` hold one `REG_SZ` per `step` and `section` line, named by the step or section. bstart clears `Boot` first, so values never outlive the boot that set them. Going through bstart works for unknown images too, whose bstart-only bundle carries no registry copy. If the slot is missing or empty (an older bundle, or an older U-Boot), bstart writes `Bundle` = `unknown` only.
+`HKLM\Software\Brain\Boot\Steps` and `HKLM\Software\Brain\Boot\Sections` hold one `REG_SZ` per `step` and `section` line, named by the step or section. bstart clears `Boot` first, so values never outlive the boot that set them. Going through bstart works for unknown images too, whose bstart-only bundle carries no registry copy. If the file is missing (an older U-Boot), bstart writes `Bundle` = `unknown` only.
 
 ## One Card, Several Models
 
@@ -464,30 +469,29 @@ A release card boots the PW-SH2, PW-SB1, PW-SH4 and PW-A7300 (and PW-G5300). Eac
 | `nkgen.pak` | Shared | Holds every profile; each image selects its own |
 | Cache | Keyed by image | `nk-CRC/`, so each model's image has its own folder. Two Brains with the same image share one, which is correct |
 | `nk-LENGTH` fallbacks | Keyed by image length | As today |
-| `cache.txt`, `nkgen.log`, `boot-status.txt` | Keyed by image | Inside `nk-CRC/` |
-| Boot status for bstart | Per boot, in RAM | `bootstat.txt` ROM slot, never on the card |
-| Status with no cache folder | Keyed by U-Boot build | `boot-status-MODEL.txt`, `nkgen-MODEL.log` |
+| `cache.txt`, `nkgen.log` | Keyed by image | Inside `nk-CRC/` |
+| Boot status | Per boot | `pwsh2-boot/boot-status.txt`, rewritten when it changes; it describes the Brain booting from the card |
 | Profile card files | Keyed by profile | `pwsh2-boot/PROFILE/`; bstart copies only its own profile's `Windows/` |
-| Common card files | Shared | `pwsh2-boot/Windows/brain-control.cpl` and the CE programs, the same on every model |
+| Common card files | Shared | `sharedCardFiles`, the same on every model, written by every model's first generation |
 | `no-nkgen` | Shared | Card-wide on purpose: a development setting |
 | Launch files | Per model | Owned by the dual-model card work; `profile` in the status is available to choose them |
 | `dump-nk` | Shared | Unchanged: the first model to boot consumes it |
 
 Card space with an SH2 and an A7300 cache: about 1.8 MB for the pak, 0.3 MB for the SH2 cache, 1.8 MB for the A7300 cache and its card files.
 
-Brain Control's About page shows `Image`, `Device`, `Bundle`, `Generator`, `Release`, the section counts and `Error`, with the steps and sections behind a details view.
+Brain Control's About page shows the bundle and folder, the image, device and identity, the generator and pak release, the section counts and the error, then lists the steps and sections after the module versions.
 
 ## Failure Handling
 
 | Case | Behaviour |
 | --- | --- |
 | No `nkgen.bin` or `nkgen.pak` | Continue the [lookup](#bundle-lookup): `nk-LENGTH/boot.nkp`, `pwsh2-boot/boot.nkp`, unpatched CE |
-| Header, CRC or ABI check fails | Same, with the reason in the status and `nkgen.log` |
+| Header, CRC or ABI check fails | Same, with the reason in the status |
 | Identity range unreadable or implausible (no `ECEC`, tables over 64 KB) | No generation; continue the lookup from `nk-LENGTH` |
 | Unknown image | Best effort: the generator returns the bstart-only bundle the page makes for unknown images (skips, no registry copy, a `skip` step noting the skip list was checked against a different image). U-Boot caches and boots it, with `image=unknown` in the status. `dump-nk` stays on the release card, so the image can be copied for the page or a bug report. A later release that knows the image has a new pak CRC, so it regenerates |
 | A check fails (expected bytes differ, span too small) | Error with the JS message. No cache written; continue the lookup |
 | Arena full | Error; fall back. The host build's high-water report should make this unreachable |
-| Card full or write error | Files written so far are deleted, no `cache.txt`. This boot continues from the in-RAM outputs; the next boot tries again |
+| Card full or write error | Files written so far in `nk-CRC/` and the file that failed are deleted, no `cache.txt`. Complete card files outside `nk-CRC/` are kept, as they match the pak. This boot continues from the in-RAM outputs; the next boot tries again |
 | Power loss or card pulled mid-write | No `cache.txt`, so the next boot regenerates and overwrites |
 | Generator hangs or crashes | Not recoverable in U-Boot (no watchdog in use). Mitigated by host fuzzing with sanitizers and by the generator never writing outside its arena and output block |
 | Cache valid but a section skips on apply | As today: that section is skipped and logged; the rest apply |
@@ -515,14 +519,19 @@ Sharp's images never go into CI. CI's `test` job runs `tools/test/check-nkgen-fi
 
 The `build` job builds `nkgen.bin` in `build.sh`. `nkgen/build.sh` checks its header and fails if the deepest stack path from `nkgen_generate`, from `-fcallgraph-info`, is over 8 KB; indirect calls are charged the largest frame.
 
-`uboot/tests/run.sh` gains the U-Boot side, in the existing stub harness: the identity range reader (against the fixture image, and truncated or corrupt first sectors), the `nkpatch.c` changes (bundle from RAM, `load` from the in-RAM table), the lookup order, the `cache.txt` parser, the `bootstat.txt` slot finder and the status writers. CI's `test` job runs the fixture check and `run.sh`.
+`uboot/tests/run.sh` covers the U-Boot side with a fake card and memory map (`uboot/tests/card-stubs/`):
+
+- `nkgen-test.c`: the identity range reader (tables past 16 KB, over 64 KB, past the image, no `ECEC`, read errors), the lookup order, `cache.txt` and its checks, `no-nkgen`, `bootsharpce generate`, header, ABI and pak checks, generator failures, output paths outside `pwsh2-boot/`, a card write failure, the status text and its write-on-change.
+- `nkgen-flow-test.c`: the U-Boot code with the host build of the generator linked in. Per image it reads the identity from sectors, generates, saves, applies from RAM, then boots again from the cache with skipped spans cleared, and checks both boots leave the same image in RAM. `run.sh` compares the card it wrote with `nkgen-host`'s. It runs on the fixture images, and on real images with `NK_IMAGES` and `NKGEN_BUILD`.
+
+CI's `test` job runs the fixture check and `run.sh`.
 
 ## What Stays in JS
 
 - `profiles/profiles.json` stays the source of truth. The pak is made from it at release.
 - The patch maker page and `make-boot-nkp.mjs` stay as they are: the reference implementation, the tool for images with no profile, and the home of the development options (`--debug-log`, `--replace-module`, `--registry`, `--patch-words`, `--no-skip`, `--slot` on eMMC dumps).
 - Their output keeps working on cards, in `nk-CRC` or `nk-LENGTH`, and is never overwritten ([transition](#page-and-cli-transition)).
-- JS changes to stay the reference: `imageIdentity()`, `--folder`, the `bootstat.txt` slot in `boot-nkp.mjs` (about 25 lines), and the `pwsh2-boot/PROFILE/` card paths in `profiles.json`.
+- JS changes to stay the reference: `imageIdentity()`, `--folder`, skipping on by default, `sharedCardFiles`, and the `pwsh2-boot/PROFILE/` card paths in `profiles.json`.
 - `tools/nk/` and `build-nk-image.mjs` are unaffected.
 
 ## Size of the Change
@@ -532,39 +541,34 @@ The `build` job builds `nkgen.bin` in `build.sh`. `nkgen/build.sh` checks its he
 | Generator (`nkgen/`) | About 3,500 C lines in 14 files, 40 to 60 KB binary |
 | Release tool (`make-nkgen-pak.mjs`) and `--describe` | About 300 JS lines, 1 file |
 | Fixture builder and check script | About 500 lines, 2 files |
-| U-Boot (`u-boot-brain`) | About 490 lines, around 4 KB of binary. See below |
+| U-Boot (`u-boot-brain`) | About 1,250 lines, 13 KB of binary per build. See below |
 | JS reference changes | About 100 lines across `rom-image.mjs`, `boot-nkp.mjs`, `profiles.mjs`, `make-boot-nkp.mjs`, `web/app.mjs`, `profiles.json` |
-| bstart and Brain Control | About 150 lines: `bootstat.txt` to the registry and the profile `Windows/` copy in `ce/bstart.c` (about 100), About page fields (about 50) |
+| bstart and Brain Control | `ce/boot-status.c` (about 170 lines), two lines in `ce/bstart.c`, About page fields (about 70 lines). The profile `Windows/` copy was already in bstart |
 | Build and packaging | `build.sh`, `package.sh`, CI workflow, `docs/reference.md`, `README.md` |
 
-U-Boot, re-estimated:
+U-Boot, as built:
 
 | Part | File | Lines |
 | --- | --- | --- |
-| Identity range read and CRC | `sharpce.c` | 30 |
-| First-boot flow: full read, call, in-RAM apply, stage text | `sharpce.c` | 50 |
-| Load and validate `nkgen.bin` and `nkgen.pak`, cache flush, call | new `nkgen.c` | 110 |
-| Write outputs and `cache.txt`, delete on failure | `nkgen.c` | 80 |
-| Read and check `cache.txt` | `nkgen.c` | 40 |
-| Status text, `nkgen.log` and `boot-status.txt` (write only on change), per-model fallback names | `nkgen.c` | 60 |
-| Find the `bootstat.txt` slot in the patched file table and fill it | `nkgen.c` | 20 |
-| Lookup order (`nk-CRC`, generate, `nk-LENGTH`, `boot.nkp`), `no-nkgen`, `bootsharpce generate` | `nkpatch.c`, `sharpce.c` | 30 |
-| Bundle from RAM, `load` from the in-RAM table, section results for the status | `nkpatch.c` | 50 |
-| Kconfig addresses, sizes and `SHARP_WINCE_MODEL` | `Kconfig`, defconfigs | 20 |
+| Identity read and CRC, lookup order, `cache.txt`, load and check `nkgen.bin` and `nkgen.pak`, call, output checks, writes, status text | new `nkgen.c` | 900 |
+| Identity reader on the MMC, whole-image read for the generator, in-RAM apply, cache flush and call, `bootsharpce generate` | `sharpce.c` | 130 |
+| Bundle from RAM, `load` from the in-RAM table, `nk-CRC` lookup, section results for the status | `nkpatch.c` | 110 |
+| Stage text | `progress.c`, `menu.c` | 20 |
+| Kconfig addresses and `SHARP_WINCE_MODEL`, defconfigs, `brain.h`, README | | 120 |
 
-The rise from the first estimate of 330 lines is the identity read and the patch status.
+The rise from the estimate of 490 lines is the checks on everything read from the card and the generator, and the status kept across cached boots.
 
 ## Milestones
 
 | # | Milestone | Complexity |
 | --- | --- | --- |
-| 1 | JS reference changes: `imageIdentity()`, `--folder`, `bootstat.txt` slot, `pwsh2-boot/PROFILE/` paths. Pak format and `make-nkgen-pak.mjs`, including `binaries/pwa7300` and card files. Teach `makeCard` to run from a pak, and check JS from the pak equals JS from `profiles.json` on every image. Proves the pak is complete before any C | About 9 files, 550 lines |
+| 1 | JS reference changes: `imageIdentity()`, `--folder`, `pwsh2-boot/PROFILE/` paths. Pak format and `make-nkgen-pak.mjs`, including `binaries/pwa7300` and card files. Teach `makeCard` to run from a pak, and check JS from the pak equals JS from `profiles.json` on every image. Proves the pak is complete before any C | About 9 files, 550 lines |
 | 2 | C core: util, SHA-256, ROM image and identity CRC, records, bstart section, host driver. Byte-identical bstart-only bundles on all six images | 7 files, about 1,300 lines |
 | 3 | Registry, skip spans, module and file sections, word patches, step results. Byte-identical PW-SH2, PW-SB1 and PW-SH4 | 3 files, about 1,100 lines |
 | 4 | ROM DLL extraction, import redirection, A7300 display. Byte-identical PW-A7300 and PW-G5300 | 3 files, about 900 lines |
 | 5 | ARM build in `build.sh`, header, stack check, fixture image, sanitizer fuzzing, CI wiring. Measure SHA-256 and arena use | 6 files |
-| 6 | U-Boot: identity read, lookup order, load and call, cache write and stamp, in-RAM apply, `no-nkgen`, `bootsharpce generate`, stage progress, status slot and files, `SHARP_WINCE_MODEL` in every CE defconfig. Host tests in `uboot/tests` | 5 U-Boot files, about 490 lines; 2 test files |
-| 7 | bstart: `bootstat.txt` to `HKLM\Software\Brain\Boot`, profile `Windows/` copy. Brain Control About page | 3 files, about 150 lines |
+| 6 | U-Boot: identity read, lookup order, load and call, cache write and stamp, in-RAM apply, `no-nkgen`, `bootsharpce generate`, stage progress, status file, `SHARP_WINCE_MODEL` in every CE defconfig. Host tests in `uboot/tests` | 12 U-Boot files, about 1,250 lines; 2 test files and card stubs |
+| 7 | bstart: `boot-status.txt` to `HKLM\Software\Brain\Boot`. Brain Control About page | 5 files, about 250 lines |
 | 8 | Release: `package.sh` ships `nkgen.bin` and `nkgen.pak` and drops `binaries/` from the card steps; the dual-model card carries every U-Boot and the A7300 launch file points at `pwsh2-boot/pwa7300/explorer.exe`; pw-sh2's card build stops shipping `nk-*` bundles; docs | About 10 files across the repositories, coordinated with the dual-model card work |
 | 9 | Hardware: first and later boots on the PW-SH2, then the PW-SB1, PW-SH4 and PW-A7300; one card moved between a PW-SH2 and a PW-A7300; identity read timing; card-full and pulled-card cases; a local real-image equivalence run before release | Device time, with the user's go-ahead for each step |
 | 10 | Next release: page and CLI write `nk-CRC` by default, `--folder length` kept | 3 files, small |
@@ -583,10 +587,13 @@ Milestones 2 to 4 are most of the work. Each ends in a passing equivalence run, 
 | Progress | Stage text plus done/total |
 | A7300 `binaries/pwa7300` | In the pak, so the card is turnkey |
 | Page and CLI folder | `nk-CRC`, after a one-release transition; `nk-LENGTH` stays readable |
-| Dual-model card | One generator and pak; caches, logs and status keyed by image; profile card files in `pwsh2-boot/PROFILE/`; boot status to bstart through a RAM slot |
+| Dual-model card | One generator and pak; caches and logs keyed by image; profile card files in `pwsh2-boot/PROFILE/`; boot status to bstart through `pwsh2-boot/boot-status.txt` |
+| Boot status | A card file, `pwsh2-boot/boot-status.txt`, written when it changes. A ROM file table slot does not fit the PW-SH4 (164 bytes free, 180 needed) |
 | Skipping | On for every image, profiled or not: the skip list is by module name and only names present in the image are skipped. U-Boot always passes `NKGEN_FLAG_SKIP`; the page and CLI default to the same. For an image the skip list was not checked against, the `skip` step says so |
 | Shared card files | `sharedCardFiles` in `profiles.json`, one list for every profile, stored once in the pak |
 
 ## Open Questions
 
-1. The `bootstat.txt` slot does not fit the PW-SH4. Its image has 164 bytes between `physlast` and `ulRAMStart`. The `bstart` section's file entries (`bstart.exe` and four reserved) and name take 152; one more entry needs 180. The slot is left out of the JS and the generator until this is decided.
+1. `pwsh2-boot/boot-status.txt` is per card. If U-Boot cannot write it, bstart reports the previous boot's status, which on a shared card may be another model's. `uboot` in the status names the build that wrote it.
+2. Shared card files are written by every first generation, over the copies on the release card. A development build of, say, `brain-control.cpl` copied to the card is replaced the next time any image regenerates; `no-nkgen` avoids that.
+3. The SHA-256 time on the ARM926 and the first-boot time are not measured. `nkgen.log` records the generator and save times.

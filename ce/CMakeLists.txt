@@ -8,7 +8,7 @@ function(ce_options target)
     target_compile_definitions(${target} PRIVATE UNICODE _UNICODE)
 endfunction()
 
-grimace_add_executable(bstart bstart.c config.c sound.c debug-agent.c power-settings.c)
+grimace_add_executable(bstart bstart.c boot-status.c config.c sound.c debug-agent.c power-settings.c)
 ce_options(bstart)
 
 grimace_add_executable(crashlog crashlog.c)

@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "boot-status.h"
 #include "config.h"
 #include "debug-agent.h"
 #include "power-settings.h"
@@ -559,6 +560,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPWSTR command_line, 
     signal_backlight_events();
     holding_window = show_holding_window(instance);
     if (wait_for_file(BOOT_FOLDER_PATH)) {
+        boot_status_record();
         restore_brightness();
         restore_battery_type();
     }
