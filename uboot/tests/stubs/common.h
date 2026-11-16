@@ -25,9 +25,22 @@ typedef long long loff_t;
 
 #define FS_TYPE_FAT 1
 
+static inline int hex_value(char character);
+
 static inline unsigned long simple_strtoul(const char *text, char **end, unsigned int base)
 {
-	return strtoul(text, end, base);
+	unsigned long result = 0;
+	int digit;
+
+	if (base == 16 && text[0] == '0' && (text[1] | 0x20) == 'x')
+		text += 2;
+	while ((digit = hex_value(*text)) >= 0 && (unsigned int)digit < base) {
+		result = result * base + digit;
+		text++;
+	}
+	if (end)
+		*end = (char *)text;
+	return result;
 }
 
 static inline unsigned long get_timer(unsigned long base)
