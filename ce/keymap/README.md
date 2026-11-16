@@ -14,6 +14,8 @@ Every profile puts `pwsh2-boot/Keymap.exe` on the card, with `pwsh2-boot/PROFILE
 
 A tray icon shows the current layer: `ab`, `Ab` (Shift for the next key), `AB` (Shift held), and the model's layers. Tap it to show or hide the keyboard map, a picture of the keyboard with what each key gives in each layer. Start > Programs > Keyboard Help (`keymap.exe help`) does the same.
 
+![The keyboard map on a PW-SH4](images/pwsh4-keyboard-help.jpg)
+
 Running Keymap again quits it. `keymap.exe log` writes every key event to `\Storage Card\keymap.log`.
 
 ## PW-SH2 and PW-SB1
