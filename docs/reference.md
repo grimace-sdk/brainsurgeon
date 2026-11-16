@@ -8,15 +8,19 @@ All on the first (FAT32) partition.
 | --- | --- |
 | `EDSA2CFG.BIN`, `EDSA1CFG.BIN`, `EDNA3CFG.BIN` | EBOOT boot config: run the U-Boot file from the card |
 | `EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSH4EXE.BIN`, `EDNA3EXE.BIN` | U-Boot, one build per platform ([EBOOT Files](#eboot-files)) |
+| `pwsh2-boot/nkgen.bin`, `nkgen.pak` | The patch generator and its inputs: drivers, profiles, registry additions and patches for every model ([boot.nkp](#bootnkp)) |
+| `pwsh2-boot/nk-CRC/` | Patches for one CE image, CRC being its identity: `boot.nkp`, the drivers it loads in `modules/`, and for a generated bundle `cache.txt` and `nkgen.log` ([Generated Bundles](#generated-bundles)) |
+| `pwsh2-boot/nk-LENGTH/boot.nkp` | Patches for one CE image of LENGTH bytes (8 hex digits), made by earlier patch makers and the command line, with the drivers it loads in `modules/` |
 | `pwsh2-boot/boot.nkp` | Patches for this Brain's CE image, made by `tools/make-boot-nkp.mjs` |
-| `pwsh2-boot/nk-LENGTH/boot.nkp` | Patches for one CE image, used in place of `pwsh2-boot/boot.nkp` when the image is LENGTH bytes (8 hex digits), so one card can serve Brains with different images. Made for recognised Brains, with the drivers it loads in `modules/` |
+| `pwsh2-boot/no-nkgen` | Marker: do not run the generator |
+| `pwsh2-boot/boot-status.txt` | How the last boot from this card was patched ([Boot Status](#boot-status)) |
 | `pwsh2-boot/PROFILE/menu.txt` | The boot menu's settings on this model ([menu.txt](#menutxt)) |
 | `pwsh2-boot/menu.txt` | The boot menu's settings on a model without its own `menu.txt` |
 | `pwsh2-boot/PROFILE/launch.txt` | What bstart starts on this profile's Brains ([launch.txt](#launchtxt)) |
 | `pwsh2-boot/launch.txt` | What bstart starts on a Brain without its own launch file or profile |
 | `pwsh2-boot/PROFILE/` | Files only this profile uses, such as its `explorer.exe` |
 | `pwsh2-boot/PROFILE/Windows/` | Copied into `\Windows` at boot after `pwsh2-boot/Windows/`, on this profile's Brains only |
-| `pwsh2-boot/dump-nk` | Marker: copy the CE image to the card at the next Windows CE boot |
+| `pwsh2-boot/dump-nk` | Marker: copy the CE image to the card at the next Windows CE boot, for the patch maker and command line |
 | `pwsh2-boot/nk-slot-A.bin`, `nk-slot-B.bin` | The copied CE image |
 | `pwsh2-boot/log` | Marker: write `pwsh2-boot/uboot.log` at each Windows CE boot, and log tablet mode changes to `pwsh2-boot/autorotate.log` |
 | `pwsh2-boot/autorotate.exe` | Applies the saved rotation at boot and follows tablet mode |
@@ -32,11 +36,12 @@ All on the first (FAT32) partition.
 
 `PROFILE` is the Brain's profile id from `HKLM\Software\Brain` `Profile`, which every recognised bundle sets: `pwsh2`, `pwsb1`, `pwsh4` or `pwa7300` (also the PW-G5300). Without `Profile`, bstart uses `Model` lowercased with the punctuation removed. Without either (an unrecognised image), bstart uses only the shared files. The `display.txt`, `sound.txt`, `power.txt` and `debug.txt` settings are read from `pwsh2-boot/` when the profile folder has none, as earlier releases wrote them; Brain Control saves them to the profile folder.
 
-Shared by every model: `pwsh2-boot/Windows/`, `pwsh2-boot/Programs/`, `pwsh2-boot/debug/`, `autorotate.exe`, `crashlog.exe`, the markers, and these logs:
+Shared by every model: `pwsh2-boot/Windows/`, `pwsh2-boot/Programs/`, `pwsh2-boot/debug/`, `autorotate.exe`, `crashlog.exe`, `nkgen.bin`, `nkgen.pak`, `boot-status.txt`, the markers, and these logs:
 
 | Log | Written by | On a shared card |
 | --- | --- | --- |
 | `pwsh2-boot/uboot.log` | U-Boot, with the `log` marker | The last boot of any model |
+| `pwsh2-boot/nk-CRC/nkgen.log` | U-Boot, at each generation for that image | One per image |
 | `pwsh2-boot/ce-debug.log`, `ce-debug-prev.log` | U-Boot, from the CE debug log a warm restart leaves in RAM | The last restart of any model |
 | `pwsh2-boot/crash.log` | `crashlog.exe` | Appended by every model |
 | `pwsh2-boot/autorotate.log` | `autorotate.exe`, with the `log` marker | Appended by every model |
@@ -156,9 +161,16 @@ Debug Agent switches the Brain's USB port away from mass storage while it runs. 
 
 ## boot.nkp
 
-U-Boot reads `pwsh2-boot/nk-LENGTH/boot.nkp`, LENGTH being the image length in 8 lowercase hex digits (`nk-01d4aebc` for the PW-SH2's slot B), and falls back to `pwsh2-boot/boot.nkp`. `load` paths are relative to the folder the bundle came from.
+U-Boot uses the first of:
 
-`make-boot-nkp.mjs --folder crc` names the folder `nk-CRC`, CRC being the image identity: a CRC-32 of the ROM header and its module and file tables, in 8 lowercase hex digits (`nk-f10da829` for the PW-SH2's slot B). It is for U-Boot with the [on-device generator](on-device-generation.md).
+1. `pwsh2-boot/nk-CRC/boot.nkp`, CRC being the image identity: a CRC-32 of the ROM header and its module and file tables, in 8 lowercase hex digits (`nk-f10da829` for the PW-SH2's slot B). `bootsharpce info` prints it.
+2. The generator, when `pwsh2-boot/nkgen.bin` and `nkgen.pak` are on the card and pass their checks, and `pwsh2-boot/no-nkgen` is not. U-Boot reads the whole image, runs the generator on it, applies the result from RAM and writes it to `nk-CRC/` ([on-device generation](on-device-generation.md)).
+3. `pwsh2-boot/nk-LENGTH/boot.nkp`, LENGTH being the image length in 8 lowercase hex digits (`nk-01d4aebc` for the PW-SH2's slot B).
+4. `pwsh2-boot/boot.nkp`.
+
+If generation fails, U-Boot goes on to 3. With no bundle, CE starts unpatched. `load` paths are relative to the folder the bundle came from.
+
+The patch maker writes `nk-LENGTH`; on a card with the generator, add `pwsh2-boot/no-nkgen` to use it. `make-boot-nkp.mjs --folder crc` writes `nk-CRC`, which U-Boot uses as it stands.
 
 Text. Offsets, lengths and bytes are hex.
 
@@ -174,6 +186,24 @@ load OFFSET LENGTH CRC32 PATH
 - Each `patch` section is checked in full before anything is changed. If the image length differs or any expected bytes do not match, the section is skipped and the rest still apply.
 - `load` reads a card file into a skipped span during the check. Its size and CRC-32 must match.
 - `EXTENDED_LENGTH` lets a section write up to 64 KB past the image end, into space U-Boot zero-fills first. The `bstart` section uses this to append `bstart.exe` to the ROM file table.
+
+### Generated Bundles
+
+A generated `nk-CRC` folder holds:
+
+- `boot.nkp` and `modules/`.
+- `cache.txt`, written last: the generator version, pak CRC-32 and release, the image's SHA-256, length and profile, the size and CRC-32 of `boot.nkp`, and the generator's step results. U-Boot makes the bundle again when the card's `nkgen.bin` or `nkgen.pak` differ from those it records, or `boot.nkp` differs from its recorded size and CRC-32. A `nk-CRC` folder without `cache.txt` is used as it stands.
+- `nkgen.log`: the generator's log, step results and timings, and each file written or found unchanged, from the last generation or failed generation for that image.
+
+The generator also writes the profile's card files to `pwsh2-boot/PROFILE/` and the shared ones (`sharedCardFiles` in `profiles.json`) to `pwsh2-boot/`. Files already on the card with the same size and CRC-32 are left as they are.
+
+To make one image's bundle again, delete its `nk-CRC` folder, or run `bootsharpce generate` at the U-Boot console. Deleting only `cache.txt` leaves a bundle that is used as it stands.
+
+### Boot Status
+
+At each Windows CE boot U-Boot records how CE was patched in `pwsh2-boot/boot-status.txt`, writing it only when its text changes. One `key=value` per line: `image` (`known` or `unknown`), `profile`, `device`, `image-crc`, `image-length`, `image-sha256`, `bundle` (`generated`, `cached`, `existing`, `failed` or `none`), `folder`, `generator`, `release`, `uboot`, `error`, then a `step NAME` line per generator step and a `section NAME` line per `boot.nkp` section, `applied` or `skipped:` with the reason.
+
+bstart copies it into `HKLM\Software\Brain\Boot` at each boot: `Image`, `Profile`, `Device`, `ImageCrc`, `ImageLength`, `ImageSha256`, `Bundle`, `Folder`, `Generator`, `Release`, `UBoot`, `Error`, the counts `SectionsApplied` and `SectionsSkipped`, and the subkeys `Steps` and `Sections`. Brain Control's About page shows them ([Brain Control](brain-control.md)). The [design](on-device-generation.md#patch-status) has the details.
 
 ### make-boot-nkp Options
 
@@ -219,7 +249,8 @@ Choosing **U-Boot** gives the console. On the PW-SH2 it is shown on the screen. 
 | `brainmenu [SECONDS]` | Show the menu. SECONDS applies when `menu.txt` sets no timeout |
 | `bootsharpce` | Boot Windows CE as from the menu |
 | `bootsharpce stock` | Boot Sharp's dictionary, unpatched |
-| `bootsharpce info` | Report which slot would boot and its length |
+| `bootsharpce info` | Report which slot would boot, its length and identity |
+| `bootsharpce generate` | Make this image's `nk-CRC` bundle again with the generator, then boot it |
 | `bootsharpce dump` | Copy the CE image to `pwsh2-boot/nk-slot-<slot>.bin` |
 | `run linux_boot` | Boot Brainux with u-boot-brain's own boot command |
 | `brainkey [MS]` | Succeed if Enter is pressed within MS (default 1000) |
@@ -279,6 +310,8 @@ linux-script=boot/boot.scr
 
 With `pwsh2-boot/log` on the card, each Windows CE boot writes `pwsh2-boot/uboot.log` just before starting CE. It records the slot, read time, skip spans and how much of them held data before being cleared, each patch applied or skipped with the reason, the progress bar's update count and time, and registers that differ from EBOOT's settings. Writing the log costs some boot time; delete the marker when done.
 
+Every boot also records how CE was patched in `pwsh2-boot/boot-status.txt`, and each generation writes `nkgen.log` in its `nk-CRC` folder ([Generated Bundles](#generated-bundles)).
+
 ## Image Tools
 
 Run on a copied CE image (`nk-slot-*.bin`):
@@ -313,6 +346,6 @@ The output has `nk.nb0`, `nk-body.bin` and a `boot.nkp` that skips all of Sharp'
 
 ## Safety
 
-- U-Boot only reads the internal MMC. It writes only to the card: `nk-slot-*.bin`, `uboot.log`, and deleting `dump-nk`.
+- U-Boot only reads the internal MMC. It writes only to the card: the generator's files, `boot-status.txt`, `nk-slot-*.bin`, `uboot.log`, and deleting `dump-nk`.
 - Patches change the copy of CE in RAM. They are gone at the next reset.
 - CE itself still runs as normal and can write to internal storage the way it always does, for example saving settings.

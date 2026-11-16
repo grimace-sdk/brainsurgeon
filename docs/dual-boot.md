@@ -23,7 +23,8 @@ On the PW-SH2:
 ```
 EDSA2CFG.BIN
 EDSA2EXE.BIN
-pwsh2-boot/dump-nk
+pwsh2-boot/nkgen.bin
+pwsh2-boot/nkgen.pak
 pwsh2-boot/menu.txt
 uEnv.txt               from Brainux
 zImage                 from Brainux
@@ -34,9 +35,9 @@ Choosing **Linux** in the menu runs u-boot-brain's usual Linux boot, which reads
 
 ## 3. Set Up Windows CE
 
-Follow steps 2 to 4 of [Windows CE only](windows-ce.md): boot once to copy the CE image to the card, make `boot.nkp`, and write `launch.txt`.
+Follow steps 2 and 4 of [Windows CE only](windows-ce.md): boot each Brain once to make its patches, and choose what to start.
 
-The Brainux boot partition is small. The CE image needs about 30 MB free while you make `boot.nkp`; delete it afterwards. The program you start from CE also needs room. To make more space, grow the FAT32 partition and move or grow the Linux root partition with a partitioning tool before setting up CE.
+The Brainux boot partition is small. The release card files take about 3.5 MB, and each Brain's patches up to 2 MB more. The patch maker route needs about 30 MB more for the CE image copy while you make `boot.nkp`. The program you start from CE also needs room. To make more space, grow the FAT32 partition and move or grow the Linux root partition with a partitioning tool before setting up CE.
 
 ## Using It
 

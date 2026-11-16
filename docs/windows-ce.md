@@ -1,12 +1,12 @@
 # Windows CE Only
 
-Boot Sharp's Windows CE straight into a program of your choice, such as a desktop shell, instead of the dictionary. One card serves every supported Brain: set it up once, then add each Brain's own patches.
+Boot Sharp's Windows CE straight into a program of your choice, such as a desktop shell, instead of the dictionary. One card serves every supported Brain: copy the release's card files once, then boot each Brain from it.
 
 You need:
 
 - A Sharp Brain with a U-Boot in the release: PW-SH2, the ED-SA1 models (PW-SB1, PW-SH1, PW-HC4, PW-SJ1), PW-SH4, PW-A7300 or PW-G5300. See [Models](models.md) for which are tested.
 - A microSD card with a FAT32 first partition. It can be the card you already use.
-- A computer with a card reader and a web browser.
+- A computer with a card reader.
 - The latest [release](https://github.com/grimace-sdk/brainsurgeon/releases) zip. Check its files against `SHA256SUMS`.
 
 ## 1. Copy the Card Files
@@ -18,56 +18,66 @@ EDSA2CFG.BIN, EDSA2EXE.BIN          PW-SH2
 EDSA1CFG.BIN, EDSA1EXE.BIN          PW-SB1, PW-SH1, PW-HC4, PW-SJ1
 EDSH4EXE.BIN                        PW-SH4
 EDNA3CFG.BIN, EDNA3EXE.BIN          PW-A7300 and PW-G5300
-pwsh2-boot/dump-nk
+pwsh2-boot/nkgen.bin                the patch generator
+pwsh2-boot/nkgen.pak                its drivers, profiles and patches
 pwsh2-boot/autorotate.exe
 pwsh2-boot/crashlog.exe
 pwsh2-boot/Keymap.exe
 pwsh2-boot/Windows/brain-control.cpl
 pwsh2-boot/debug/
-pwsh2-boot/pwsh2/launch.txt, explorer.exe, Windows/
-pwsh2-boot/pwsb1/launch.txt, explorer.exe, Windows/
-pwsh2-boot/pwsh4/launch.txt, explorer.exe, Windows/
-pwsh2-boot/pwa7300/launch.txt, explorer.exe, Windows/
+pwsh2-boot/pwsh2/launch.txt
+pwsh2-boot/pwsb1/launch.txt
+pwsh2-boot/pwsh4/launch.txt
+pwsh2-boot/pwa7300/launch.txt
 ```
 
 Each Brain's bootloader (EBOOT) reads only its own model's files, so the others are ignored. Leave anything already on the card where it is. Never put a Sharp `.SDU` update file on the card.
 
-## 2. Copy Each Brain's CE Image to the Card
+## 2. Boot Each Brain
 
 Put the card in the Brain and turn it on. A menu appears over the Brain splash screen and Windows CE starts after 10 seconds. Choose **CE stock** to boot Sharp's dictionary unpatched ([keys](reference.md#menu-and-u-boot-commands)).
 
-Because `pwsh2-boot/dump-nk` is on the card, U-Boot first copies the CE image it is about to boot to `pwsh2-boot/nk-slot-A.bin` or `nk-slot-B.bin` (about 30 MB), and deletes `dump-nk`. The boot pauses while it writes. There is no `boot.nkp` for this Brain yet, so CE then starts as normal, with the dictionary.
+The first Windows CE boot of each Brain from the card makes that Brain's patches from its own CE image. The progress bar shows the stages: `First start: reading Windows CE`, then `Identifying image`, `Extracting modules` (PW-A7300 and PW-G5300), `Merging registry` and `Building patches`, then `Saving to card` and `Patching`. U-Boot writes:
 
-For a second Brain, first move its predecessor's `nk-slot-*.bin` off the card: two Brains can use the same slot name (the PW-SH2 and PW-SH4 boot slot B, the PW-A7300 and PW-G5300 slot A). Then create an empty `pwsh2-boot/dump-nk` and boot the second Brain from the card.
+- `pwsh2-boot/nk-<id>/`: the patch bundle `boot.nkp`, the drivers it loads in `modules/`, `cache.txt` and `nkgen.log`. `<id>` is the image identity, a CRC-32 of the image's ROM tables in 8 hex digits, so each CE image has its own folder.
+- `pwsh2-boot/PROFILE/`: files for that model only, such as its `explorer.exe`.
 
-The image is Sharp's software. Keep it for yourself; do not share it.
+Later boots use these files and start sooner. A newer release's `nkgen.bin` or `nkgen.pak` makes each Brain generate again on its next boot. To make one Brain's patches again, delete its `nk-<id>` folder.
 
-## 3. Make `boot.nkp`
-
-Turn the Brain off and put the card in your computer. Open the [patch maker](https://grimace-sdk.github.io/brainsurgeon/) and drop the `nk-slot-*.bin` onto it. The image stays in your browser; nothing is uploaded. It shows the patches it made and any notes, and offers a zip of card files: `pwsh2-boot/nk-LENGTH/boot.nkp`, the drivers it loads, and any other files that Brain needs in `pwsh2-boot/PROFILE/`. Unzip it onto the root of the card, keeping the folders. Repeat for each Brain's image; each goes in its own `nk-LENGTH` folder.
-
-If the patch maker does not recognise the image, the zip has a bundle that only adds bstart, with no drivers. That is the best effort for models without a profile: CE starts the program in `launch.txt` with Sharp's own drivers.
-
-Or, with [Node.js](https://nodejs.org) 20 or later, from the unzipped release:
-
-```sh
-node tools/make-boot-nkp.mjs --image /path/to/card/pwsh2-boot/nk-slot-B.bin --card /path/to/card
-```
-
-You can now delete `nk-slot-*.bin` from the card, or keep it to regenerate `boot.nkp` later.
+Brains listed in [profiles/profiles.json](../profiles/README.md) get their drivers, registry additions and patches. Any other image gets a bundle that only adds bstart, with no drivers: CE starts the program in `launch.txt` with Sharp's own drivers. Brain Control's About page shows what was patched ([boot status](reference.md#boot-status)).
 
 `boot.nkp` contains:
 
 | Patch | Effect |
 | --- | --- |
-| `skip` lines | U-Boot does not read Sharp's dictionary, handwriting, speech and update modules, which nothing else uses: about half of the image. On unless you turn it off. |
+| `skip` lines | U-Boot does not read Sharp's dictionary, handwriting, speech and update modules, which nothing else uses: about half of the image |
 | `bstart` | Adds `bstart.exe` to the image and starts it instead of Sharp's shell |
 | `module NAME` | Recognised Brains: loads a driver from `modules/` beside `boot.nkp` in place of Sharp's, or as a new one |
 | `words NAME` | PW-SH2 and PW-SB1: makes Sharp's sound driver follow the system volume |
 
-Skipping is on by default for every image: the skip list is by module name, and recognised Brains need it, since their drivers load into the skipped space. Only names present in the image are skipped. For an image the skip list was not checked against, the patch maker says so; turn skipping off (`--no-skip` on the command line) if CE then misbehaves.
+Skipping is on for every image: the skip list is by module name, and recognised Brains need it, since their drivers load into the skipped space. Only names present in the image are skipped. For an image the skip list was not checked against, the `skip` step in `nkgen.log` says so; if CE then misbehaves, make the bundle with the command line and `--no-skip` ([below](#3-patch-maker-and-command-line)).
 
-Make every Brain's bundle with the same release. bstart comes from the bundle, and a newer bstart moves files an older one still expects (see [Files for \Windows](#files-for-windows)).
+## 3. Patch Maker and Command Line
+
+For images or set-ups the generator can't handle, or for the development options, make the bundle on a computer from a copy of the CE image.
+
+Create an empty `pwsh2-boot/dump-nk` on the card and boot the Brain. U-Boot copies the CE image it is about to boot to `pwsh2-boot/nk-slot-A.bin` or `nk-slot-B.bin` (about 30 MB), and deletes `dump-nk`. The boot pauses while it writes. Two Brains can use the same slot name (the PW-SH2 and PW-SH4 boot slot B, the PW-A7300 and PW-G5300 slot A), so move one Brain's copy off the card before copying the next.
+
+The image is Sharp's software. Keep it for yourself; do not share it.
+
+Open the [patch maker](https://grimace-sdk.github.io/brainsurgeon/) and drop the `nk-slot-*.bin` onto it. The image stays in your browser; nothing is uploaded. It shows the patches it made and any notes, and offers a zip of card files: `pwsh2-boot/nk-LENGTH/boot.nkp`, the drivers it loads, and any other files that Brain needs in `pwsh2-boot/PROFILE/`. Unzip it onto the root of the card, keeping the folders. U-Boot uses a `nk-LENGTH` bundle only after the generator, so also create an empty `pwsh2-boot/no-nkgen`.
+
+Or, with [Node.js](https://nodejs.org) 20 or later, from the unzipped release:
+
+```sh
+node tools/make-boot-nkp.mjs --image /path/to/card/pwsh2-boot/nk-slot-B.bin --folder crc --card /path/to/card
+```
+
+`--folder crc` writes `pwsh2-boot/nk-<id>/`, which U-Boot uses as it stands, so the generator leaves that image alone. Delete the folder to go back to the generator. `--help` lists the other options.
+
+You can then delete `nk-slot-*.bin` from the card, or keep it to make `boot.nkp` again later.
+
+Make every Brain's bundle with the same release as the card. bstart comes from the bundle, and a newer bstart moves files an older one still expects (see [Files for \Windows](#files-for-windows)).
 
 ## 4. Choose What to Start
 
@@ -139,9 +149,10 @@ Most apps follow a rotation. Some, such as Pocket Paint, do not handle being res
 
 ## Undo
 
-Delete the Brain's U-Boot file (`EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSH4EXE.BIN` or `EDNA3EXE.BIN`) from the card, or remove the card. The Brain then boots exactly as stock. To boot Sharp's dictionary once, choose **CE stock** in the menu. To keep the menu but boot CE unpatched every time, delete `pwsh2-boot/boot.nkp` and `pwsh2-boot/nk-*/boot.nkp`.
+Delete the Brain's U-Boot file (`EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSH4EXE.BIN` or `EDNA3EXE.BIN`) from the card, or remove the card. The Brain then boots exactly as stock. To boot Sharp's dictionary once, choose **CE stock** in the menu. To keep the menu but boot CE unpatched every time, create an empty `pwsh2-boot/no-nkgen` and delete `pwsh2-boot/boot.nkp` and the `pwsh2-boot/nk-*` folders.
 
 ## Problems
 
 - **No menu or U-Boot does not start:** check the Brain's files are in the card's root (`EDSA2CFG.BIN` and `EDSA2EXE.BIN` on the PW-SH2) and the first partition is FAT32.
+- **First start fails, or CE starts without the patches:** `pwsh2-boot/boot-status.txt` has the error and `pwsh2-boot/nk-<id>/nkgen.log` the generator's log ([boot status](reference.md#boot-status)).
 - **CE does not start or stops:** create an empty `pwsh2-boot/log` file and boot again. U-Boot writes `pwsh2-boot/uboot.log`, which lists each patch as applied or skipped and why. See [reference](reference.md#diagnostics).

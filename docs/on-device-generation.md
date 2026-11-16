@@ -1,10 +1,10 @@
 # On-Device Generation
 
-Design for making `boot.nkp` and its modules on the Brain at first boot, so a release card carries only our files and the profiles. Milestones 1 to 7 are in place: the JS reference changes, the pak, the generator in `nkgen/` and its checks, U-Boot's lookup, generation and boot status (`board/sharp/common/wince/nkgen.c` in u-boot-brain), and bstart and Brain Control reading the status. None of it has run on a Brain yet.
+How the Brain makes `boot.nkp` and its modules at first boot, so a release card carries only our files and the profiles. Implemented: the JS reference changes, the pak, the generator in `nkgen/` and its checks, U-Boot's lookup, generation and boot status (`board/sharp/common/wince/nkgen.c` in u-boot-brain), bstart and Brain Control reading the status, and release packaging. The PW-SH2, PW-SH4, PW-A7300 and PW-G5300 generated on their first boot from a card and used the cache on later boots.
 
 ## Why
 
-Today `boot.nkp` must be made from each user's own image, on the [patch maker](https://grimace-sdk.github.io/brainsurgeon/) page or with `tools/make-boot-nkp.mjs`. The output is derived from Sharp's image:
+Before the generator, `boot.nkp` had to be made from each user's own image, on the [patch maker](https://grimace-sdk.github.io/brainsurgeon/) page or with `tools/make-boot-nkp.mjs`. The output is derived from Sharp's image:
 
 | Output | Sharp-derived content |
 | --- | --- |
@@ -13,7 +13,7 @@ Today `boot.nkp` must be made from each user's own image, on the [patch maker](h
 | `modules/keybd_EDNA2.dll` (A7300) | Sharp's keyboard driver, extracted and patched |
 | `CPLBRAIN.CPL` (A7300) | Sharp's `cplmain.cpl`, extracted with its imports redirected |
 
-If the Brain makes these itself, nothing derived from Sharp's image is ever distributed, and a release card works on every recognised Brain without a computer step. One card serves every model: it carries a U-Boot per model and one generator and inputs file for all of them (see [One Card, Several Models](#one-card-several-models)).
+The Brain makes these itself, so releases hold only our files and the profiles, and a release card works on every recognised Brain without a computer step. One card serves every model: it carries a U-Boot per model and one generator and inputs file for all of them (see [One Card, Several Models](#one-card-several-models)).
 
 ## Overview
 
@@ -42,7 +42,7 @@ The JS generator stays the reference implementation. A host build of the C gener
 | `pwsh2-boot/PROFILE/` | Profile card files: for `pwa7300`, `explorer.exe`, and in `Windows/` `CPLBRAIN.CPL` (ROM-derived), `braincrypt.dll`, `brainras.dll`, `brainsip.dll` | Made on the Brain |
 | `pwsh2-boot/boot-status.txt` | Patch status of the last boot from this card, for bstart and bug reports | Made on the Brain |
 
-Card files every profile needs (`pwsh2-boot/Windows/brain-control.cpl`, `pwsh2-boot/Keymap.exe`, `pwsh2-boot/debug/debugmgr.exe` and `usbserial.dll`) are listed once, in `sharedCardFiles` in `profiles.json`. They are stored once in the pak and are outputs of every generation that applies a profile. All other release card files (the U-Boots, `EDSA2CFG.BIN`, `autorotate.exe`, `crashlog.exe`, the launch files) are ours, common to every model, and ship as now.
+Card files every profile needs (`pwsh2-boot/Windows/brain-control.cpl`, `pwsh2-boot/Keymap.exe`, `pwsh2-boot/debug/debugmgr.exe` and `usbserial.dll`) are listed once, in `sharedCardFiles` in `profiles.json`. They are stored once in the pak and are outputs of every generation that applies a profile. The release card carries them too, so a first boot finds them unchanged and skips writing them. All other release card files (the U-Boots, `EDSA2CFG.BIN`, `autorotate.exe`, `crashlog.exe`, the launch files) are ours, common to every model, and ship on the release card with `nkgen.bin` and `nkgen.pak`.
 
 Profile card files move out of the shared `pwsh2-boot/Windows/` and `explorer/` into `pwsh2-boot/PROFILE/`, so one model's files never reach another. `profiles.json` changes to match (`pwsh2-boot/pwa7300/Windows/CPLBRAIN.CPL`, `pwsh2-boot/pwa7300/explorer.exe`), for the JS tools too, and bstart copies `pwsh2-boot/PROFILE/Windows/` into `\Windows` after `pwsh2-boot/Windows/`. The A7300 launch file names `\Storage Card\pwsh2-boot\pwa7300\explorer.exe`.
 
@@ -162,7 +162,7 @@ About 3,500 C lines for about 1,600 JS lines, in about 14 files under `nkgen/`. 
 
 ## Release Manifest
 
-`nkgen.pak` is made at release by `tools/make-nkgen-pak.mjs` from `profiles/profiles.json`, `tools/skip-modules.json`, the fetched `inputs/` (checked against their pinned SHA-256) and the build output. Neither U-Boot nor the generator parses JSON or `.reg` text. `node tools/make-nkgen-pak.mjs --describe nkgen.pak` prints it as text for review.
+`nkgen.pak` is made at release by `tools/make-nkgen-pak.mjs`, run by `tools/package.sh` with `--release` set to the release version, from `profiles/profiles.json`, `tools/skip-modules.json`, the fetched `inputs/` (checked against their pinned SHA-256) and the build output. Neither U-Boot nor the generator parses JSON or `.reg` text. `node tools/make-nkgen-pak.mjs --describe nkgen.pak` prints it as text for review.
 
 Little-endian, all offsets from the start of the file, all records 4-byte aligned.
 
@@ -364,7 +364,7 @@ Generator stages and their share of its band:
 | `Merging registry` | 10% |
 | `Building patches` | 20% |
 
-On a 454 MHz ARM926, a software SHA-256 of 30 MB is estimated at 2 to 5 s; to be measured on hardware. The whole-image read before the generator shows `First start: reading Windows CE`, so the longer first boot is explained. Writing the outputs shows `Saving to card` and applying them `Patching`.
+The PW-SH2's first generation, SHA-256 included, took 8.0 s. The whole-image read before the generator shows `First start: reading Windows CE`, so the longer first boot is explained. Writing the outputs shows `Saving to card` and applying them `Patching`.
 
 ## Cache Invalidation
 
@@ -488,7 +488,7 @@ Brain Control's About page shows the bundle and folder, the image, device and id
 | No `nkgen.bin` or `nkgen.pak` | Continue the [lookup](#bundle-lookup): `nk-LENGTH/boot.nkp`, `pwsh2-boot/boot.nkp`, unpatched CE |
 | Header, CRC or ABI check fails | Same, with the reason in the status |
 | Identity range unreadable or implausible (no `ECEC`, tables over 64 KB) | No generation; continue the lookup from `nk-LENGTH` |
-| Unknown image | Best effort: the generator returns the bstart-only bundle the page makes for unknown images (skips, no registry copy, a `skip` step noting the skip list was checked against a different image). U-Boot caches and boots it, with `image=unknown` in the status. `dump-nk` stays on the release card, so the image can be copied for the page or a bug report. A later release that knows the image has a new pak CRC, so it regenerates |
+| Unknown image | Best effort: the generator returns the bstart-only bundle the page makes for unknown images (skips, no registry copy, a `skip` step noting the skip list was checked against a different image). U-Boot caches and boots it, with `image=unknown` in the status. Creating `dump-nk` copies the image for the page or a bug report. A later release that knows the image has a new pak CRC, so it regenerates |
 | A check fails (expected bytes differ, span too small) | Error with the JS message. No cache written; continue the lookup |
 | Arena full | Error; fall back. The host build's high-water report should make this unreachable |
 | Card full or write error | Files written so far in `nk-CRC/` and the file that failed are deleted, no `cache.txt`. Complete card files outside `nk-CRC/` are kept, as they match the pak. This boot continues from the in-RAM outputs; the next boot tries again |
@@ -575,6 +575,12 @@ The rise from the estimate of 490 lines is the checks on everything read from th
 
 Milestones 2 to 4 are most of the work. Each ends in a passing equivalence run, so a half-done port is still checkable.
 
+Status:
+
+- 1 to 8: done in this repository and u-boot-brain. pw-sh2's card build is separate work.
+- 9: first and later boots done on the PW-SH2, PW-SH4, PW-A7300 and PW-G5300. The PW-SB1, a card moved between models, identity read timing, and the card-full and pulled-card cases are still to run.
+- 10: for the next release.
+
 ## Decisions
 
 | Question | Decision |
@@ -595,5 +601,10 @@ Milestones 2 to 4 are most of the work. Each ends in a passing equivalence run, 
 ## Open Questions
 
 1. `pwsh2-boot/boot-status.txt` is per card. If U-Boot cannot write it, bstart reports the previous boot's status, which on a shared card may be another model's. `uboot` in the status names the build that wrote it.
-2. Shared card files are written by every first generation, over the copies on the release card. A development build of, say, `brain-control.cpl` copied to the card is replaced the next time any image regenerates; `no-nkgen` avoids that.
-3. The SHA-256 time on the ARM926 and the first-boot time are not measured. `nkgen.log` records the generator and save times.
+2. Shared card files are outputs of every generation. A copy on the card with the same size and CRC-32 is left alone, so the release card's copies cost no write. A development build of, say, `brain-control.cpl` copied to the card is replaced the next time any image regenerates; `no-nkgen` avoids that.
+3. `nkgen.log` records the generator and save times. The PW-SH2 generated in 8.0 s. The PW-A7300 saved in 15.8 s, writing 10 of its 21 files, about 1 s per file written (see [Shelved](#shelved)).
+
+## Shelved
+
+- U-Boot's FAT driver searches for a free cluster from the start of the FAT for every new file, and the MXS MMC driver sleeps 1 ms before each busy and completion check. A free-cluster hint (the last allocation or FSInfo) and dropping the leading sleeps would speed up first-boot saves. Both are in U-Boot's shared drivers.
+- One report had the PW-A7300 and PW-G5300 stage text drawn black. Unconfirmed.
