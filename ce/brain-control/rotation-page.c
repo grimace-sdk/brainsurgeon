@@ -32,7 +32,7 @@ static BOOL has_tablet_mode(void)
 {
     DWORD model = model_current();
 
-    return model == MODEL_PWSH2 || model == MODEL_UNKNOWN;
+    return model == MODEL_PWSH2 || model == MODEL_PWSH4 || model == MODEL_UNKNOWN;
 }
 
 static void update_tablet_controls(HWND page)

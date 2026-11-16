@@ -40,7 +40,7 @@ struct section {
 static struct section sections[] = {
     { L"Display", L"Screen brightness, and the sub screen where there is one", &icon_brightness_6_24, &icon_brightness_6_32, MODEL_ALL, display_page_available,
         IDD_PAGE_DISPLAY, display_page_procedure, display_page_save, display_page_revert, NULL, NULL },
-    { L"Rotation", L"Which way up the screen is, now and at startup", &icon_screen_rotation_24, &icon_screen_rotation_32, MODEL_PWSH2 | MODEL_PWSB1 | MODEL_PWA7300, NULL,
+    { L"Rotation", L"Which way up the screen is, now and at startup", &icon_screen_rotation_24, &icon_screen_rotation_32, MODEL_PWSH2 | MODEL_PWSB1 | MODEL_PWSH4 | MODEL_PWA7300, NULL,
         IDD_PAGE_ROTATION, rotation_page_procedure, rotation_page_save, NULL, NULL, NULL },
     { L"Night Light", L"Warmer screen colours in the evening, on a schedule", &icon_bedtime_24, &icon_bedtime_32, MODEL_PWA7300, night_light_page_available,
         IDD_PAGE_NIGHT_LIGHT, night_light_page_procedure, night_light_page_save, night_light_page_revert, night_light_page_shown, NULL },

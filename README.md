@@ -16,7 +16,7 @@ Build apps for it with [grimace](https://github.com/grimace-sdk/grimace), the Wi
 ## Features
 
 - **Display driver** ([brain-display](https://github.com/grimace-sdk/brain-display)), all models: faster than Sharp's on all 22 drawbench cases on the PW-SH2, such as full-screen fill 2.9x, ClearType text 1.5x, stretched blits 17.7x and sprite masks 29.9x. Tear-free refresh, paced to the panel.
-- **Rotation**, PW-SH2 and PW-A7300: all four orientations, rotated by the PXP, with startup rotation and automatic rotation in PW-SH2 tablet mode.
+- **Rotation**, PW-SH2, PW-SH4 and PW-A7300: all four orientations, rotated by the PXP, with startup rotation and automatic rotation in PW-SH2 and PW-SH4 tablet mode.
 - **Full-screen apps**, all models: present mode runs 800x480 apps at 51.7 fps on the PW-SH2 and smaller buffers at the full 59.3 Hz, with up to 8 hardware overlays. An SDL 3 test app runs at 60 fps.
 - **Sleep**, PW-SH2 and PW-A7300: resume from deep sleep restores the LCD controller, pins and panel.
 - **Backlight** ([brain-drivers](https://github.com/grimace-sdk/brain-drivers)), PW-SH2, PW-SH4 and PW-A7300: 100 brightness levels on a perceptual curve, down to 0.36% of full, plus a dim level for idle. Sharp's driver has five.
