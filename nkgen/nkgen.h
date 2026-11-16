@@ -7,7 +7,7 @@
 
 #define NKGEN_HEADER_MAGIC "NKGENBIN"
 #define NKGEN_HEADER_VERSION 1
-#define NKGEN_ABI_VERSION 1
+#define NKGEN_ABI_VERSION 2
 #define NKGEN_PAK_FORMAT 2
 #define NKGEN_CALL_MAGIC 0x4347484eu
 #define NKGEN_HEADER_SIZE 72
@@ -72,6 +72,8 @@ struct nkgen_call {
     const struct nkgen_step *steps;
     uint32_t known;
     const char *profile;
+    const char *device;
+    const char *release;
     uint32_t identity_crc32;
     uint8_t image_sha256[32];
     char message[160];

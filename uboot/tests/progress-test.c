@@ -6,6 +6,8 @@ static unsigned int pushes;
 static unsigned int last_filled;
 static bool bar_available = true;
 static unsigned int bar_interval_ms;
+static unsigned int labels;
+static char last_label[64];
 
 int brain_progress_bar_open(struct brain_progress_bar *opened)
 {
@@ -27,6 +29,13 @@ int brain_progress_bar_push(const u16 *pixels, const struct brain_progress_bar *
 		filled++;
 	last_filled = filled;
 	pushes++;
+	return 0;
+}
+
+int brain_progress_label_push(const char *text)
+{
+	snprintf(last_label, sizeof(last_label), "%s", text);
+	labels++;
 	return 0;
 }
 
@@ -99,11 +108,23 @@ static void check_interval(void)
 	bar_interval_ms = 0;
 }
 
+static void check_stage(void)
+{
+	labels = 0;
+	brain_progress_stage("Hidden");
+	expect(labels == 0, "progress: no stage text without a bar");
+	brain_progress_begin(10);
+	brain_progress_stage("Saving to card");
+	expect(labels == 1 && !strcmp(last_label, "Saving to card"), "progress: stage text shown with the bar");
+	brain_progress_end();
+}
+
 int main(void)
 {
 	check_redraws();
 	check_steps();
 	check_no_bar();
 	check_interval();
+	check_stage();
 	return failures ? 1 : 0;
 }

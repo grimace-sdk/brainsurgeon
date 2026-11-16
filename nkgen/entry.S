@@ -20,13 +20,13 @@ nkgen_header:
     .global nkgen_save
     .type nkgen_save, %function
 nkgen_save:
-    stmia r0, {r4-r11, sp, lr}
+    stmia r0, {r4-r8, r10, r11, sp, lr}
     mov r0, #0
     bx lr
 
     .global nkgen_restore
     .type nkgen_restore, %function
 nkgen_restore:
-    ldmia r0, {r4-r11, sp, lr}
+    ldmia r0, {r4-r8, r10, r11, sp, lr}
     mov r0, #1
     bx lr

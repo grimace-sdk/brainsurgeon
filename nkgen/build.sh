@@ -20,7 +20,7 @@ case "$target" in
         ;;
     arm)
         version=$(printf '%.31s' "${3:-unknown}")
-        flags="-std=c99 -mcpu=arm926ej-s -marm -O2 -ffreestanding -fno-builtin -nostdlib -fno-pic -mno-unaligned-access
+        flags="-std=c99 -mcpu=arm926ej-s -marm -O2 -ffreestanding -fno-builtin -nostdlib -fno-pic -mno-unaligned-access -ffixed-r9
             -fno-tree-loop-distribute-patterns -fno-unwind-tables -fno-asynchronous-unwind-tables $warnings -Wcast-align=strict"
         mkdir -p "$output/arm"
         objects=""
@@ -32,6 +32,10 @@ case "$target" in
         arm-none-eabi-gcc -mcpu=arm926ej-s -marm -DNKGEN_VERSION_TEXT="\"$version\"" -c entry.S -o "$output/arm/entry.o"
         arm-none-eabi-gcc -nostdlib -Wl,--no-warn-rwx-segments -T nkgen.ld "$output/arm/entry.o" $objects -lgcc -o "$output/nkgen.elf"
         arm-none-eabi-objcopy -O binary "$output/nkgen.elf" "$output/nkgen.bin"
+        if arm-none-eabi-objdump -d "$output/nkgen.elf" | grep -qwE 'r9|sb'; then
+            echo "nkgen.elf uses r9, which holds U-Boot's global data pointer" >&2
+            exit 1
+        fi
         ${CC:-cc} -std=c99 -O2 $warnings -o "$output/nkgen-seal" seal.c
         "$output/nkgen-seal" "$output/nkgen.bin"
         python3 stack-usage.py 8192 nkgen_generate "$output"/arm/*.ci

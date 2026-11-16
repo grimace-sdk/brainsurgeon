@@ -7,11 +7,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <stdarg.h>
+#include <stddef.h>
 
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
+typedef int32_t s32;
+typedef unsigned long ulong;
+
+#define min(first, second) ((first) < (second) ? (first) : (second))
+#define DIV_ROUND_UP(value, divisor) (((value) + (divisor) - 1) / (divisor))
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
 #define loff_t uboot_loff_t
 typedef long long loff_t;
 
@@ -51,39 +59,6 @@ static inline int hex2bin(u8 *output, const char *input, size_t count)
 		*output++ = high << 4 | low;
 	}
 	return 0;
-}
-
-extern const char *test_bundle;
-extern const char *test_bundle_path;
-extern char test_size_path[];
-
-static inline int fs_set_blk_dev(const char *interface, const char *device, int type)
-{
-	return 0;
-}
-
-static inline int fs_read(const char *name, unsigned long address, loff_t offset, loff_t length, loff_t *size)
-{
-	if (!test_bundle || (test_bundle_path && strcmp(name, test_bundle_path)))
-		return -ENOENT;
-	*size = strlen(test_bundle);
-	return 0;
-}
-
-static inline void *map_sysmem(unsigned long address, unsigned long length)
-{
-	return (void *)test_bundle;
-}
-
-static inline unsigned long map_to_sysmem(const void *pointer)
-{
-	return (unsigned long)pointer;
-}
-
-static inline int fs_size(const char *name, loff_t *size)
-{
-	strcpy(test_size_path, name);
-	return -ENOENT;
 }
 
 #endif

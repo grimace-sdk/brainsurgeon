@@ -130,6 +130,7 @@ static void generate(struct nkgen_call *call)
     struct rom_image image;
     report_progress("Identifying image", 0, 1);
     pak_open(&pak, call->pak, call->pak_length);
+    call->release = pak.release;
     log_line("pak %s, crc32 %08x", pak.release, pak.crc32);
 
     step_begin("identify");
@@ -144,6 +145,7 @@ static void generate(struct nkgen_call *call)
     int skipping = (call->flags & NKGEN_FLAG_SKIP) != 0;
     int applied = call->known && skipping;
     call->profile = applied ? pak_profile(&pak, match.profile).id : "";
+    call->device = call->known ? match.device : "";
     log_line("image %u bytes, sha256 %s, identity %08x", call->image_length, digest ? hex_digest(digest) : "not computed", call->identity_crc32);
     if (call->known) {
         log_line("%s %s, profile %s", match.device, match.description, call->profile);
@@ -210,6 +212,8 @@ int32_t nkgen_generate(struct nkgen_call *call)
     call->steps = 0;
     call->known = 0;
     call->profile = "";
+    call->device = "";
+    call->release = "";
     call->identity_crc32 = 0;
     fill_bytes(call->image_sha256, 0, sizeof(call->image_sha256));
     call->message[0] = 0;
