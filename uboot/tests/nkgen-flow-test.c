@@ -203,6 +203,7 @@ int main(int argc, char **argv)
 	expect(brain_bundle_choose(image_length, false) == BRAIN_BUNDLE_GENERATE, "flow: first boot generates");
 	expect(!brain_nkgen_generate(load_region(), image_length), "flow: generator agrees on the identity and succeeds");
 	expect(!brain_nkgen_save(), "flow: outputs and cache.txt saved");
+	expect(fake_misaligned_writes == 0, "flow: every write is from a cache-aligned buffer");
 	clear_spans(load_region());
 	brain_nk_bundle_apply(load_region(), image_length);
 	sections_skipped = skipped_sections();

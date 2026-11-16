@@ -302,6 +302,7 @@ static void check_first_and_second_boot(void)
 	expect(stamp && bundle && fake_find(TEST_FOLDER "/modules/test.dll") && fake_find("pwsh2-boot/pwtest/Windows/card.txt"),
 	       "first boot: every output written");
 	expect(stamp && stamp->written_at == fake_write_count, "first boot: cache.txt written last");
+	expect(fake_misaligned_writes == 0, "first boot: every write is from a cache-aligned buffer");
 	expect(fake_find(TEST_FOLDER "/nkgen.log") && strstr(card_text(TEST_FOLDER "/nkgen.log"), "fake generator"),
 	       "first boot: nkgen.log has the generator's log");
 	image = boot_image();

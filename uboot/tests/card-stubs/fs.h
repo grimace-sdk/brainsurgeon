@@ -18,6 +18,7 @@ struct fake_file {
 
 static struct fake_file fake_files[FAKE_FILES];
 static unsigned int fake_write_count;
+static unsigned int fake_misaligned_writes;
 static const char *fake_failing_write;
 
 static inline struct fake_file *fake_find(const char *path)
@@ -65,6 +66,7 @@ static inline void fake_card_clear(void)
 		memset(&fake_files[index], 0, sizeof(fake_files[index]));
 	}
 	fake_write_count = 0;
+	fake_misaligned_writes = 0;
 	fake_failing_write = NULL;
 }
 
@@ -149,6 +151,8 @@ static inline int fs_write(const char *path, unsigned long address, loff_t offse
 	file->length = length;
 	file->writes++;
 	file->written_at = ++fake_write_count;
+	if ((unsigned long)map_sysmem(address, length) & 63)
+		fake_misaligned_writes++;
 	*written = length;
 	return 0;
 }

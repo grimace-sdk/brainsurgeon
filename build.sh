@@ -2,7 +2,7 @@
 set -eu
 
 UBOOT_REPOSITORY=https://github.com/grimace-sdk/u-boot-brain.git
-UBOOT_COMMIT=7a004b1dd568ce680b41c937c51e67945ab1cbe0
+UBOOT_COMMIT=d06065f73526eb5e118d6c503c7daa4e482dc48b
 NKBIN_MAKER_REPOSITORY=https://github.com/brain-hackers/nkbin_maker.git
 NKBIN_MAKER_COMMIT=4a97a4e8074cec12ac8989bcfcab9b9f7d47156d
 GRIMACE_REPOSITORY=https://github.com/grimace-sdk/grimace.git
