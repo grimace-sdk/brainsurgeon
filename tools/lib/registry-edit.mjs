@@ -139,7 +139,11 @@ export function parseRegFile(text) {
 }
 
 export function applyRegFile(keys, text) {
-    for (const entry of parseRegFile(text)) {
+    return applyRegEntries(keys, parseRegFile(text));
+}
+
+export function applyRegEntries(keys, entries) {
+    for (const entry of entries) {
         if (entry.name === null) {
             if (!keys.some((key) => key.hive === entry.hive && key.key.toLowerCase() === entry.keyPath.toLowerCase())) {
                 keys.push({ hive: entry.hive, key: entry.keyPath, values: [] });

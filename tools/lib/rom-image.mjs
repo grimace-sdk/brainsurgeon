@@ -1,4 +1,4 @@
-import { check, hex, indexOfByte, latin1, readU16, readU32 } from './bytes.mjs';
+import { check, crc32, hex, indexOfByte, latin1, readU16, readU32 } from './bytes.mjs';
 import { decompressRomLzx } from './lzx.mjs';
 
 export { hex };
@@ -13,6 +13,7 @@ export const o32EntrySize = 24;
 export const trailerSignature = '06732754';
 export const compressedFileAttribute = 0x800;
 export const compressedSectionFlag = 0x2000;
+export const identityLimit = 65536;
 
 const slotOffsetsInSectors = { A: 0, B: 0x10000 };
 const trailerOffsetInSectors = 30 * 1024 * 1024 / sectorSize - 1;
@@ -57,6 +58,17 @@ export function imageFromDumpOrSlot(contents, slot) {
     check(valid, 'Not a CE image, and neither slot A nor slot B of this eMMC dump has a valid trailer');
     return { slot: valid, bytes: readSlotImage(contents, valid).bytes };
 }
+
+export function imageIdentity(bytes) {
+    check(isImage(bytes), 'Missing ECEC signature: not a Windows CE ROM image');
+    const offset = readU32(bytes, 0x44) - imageBase;
+    check(offset >= 0 && offset + romHeaderSize <= bytes.length, 'ROM header is outside the image');
+    const length = romHeaderSize + readU32(bytes, offset + 16) * tocEntrySize + readU32(bytes, offset + 48) * filesEntrySize;
+    check(length <= identityLimit && offset + length <= bytes.length, `ROM header and tables (${length} bytes) are over ${identityLimit} bytes or run past the image`);
+    return crc32(bytes.subarray(offset, offset + length));
+}
+
+export const identityHex = (identity) => identity.toString(16).padStart(8, '0');
 
 export function openImage(bytes) {
     check(isImage(bytes), 'Missing ECEC signature: not a Windows CE ROM image');

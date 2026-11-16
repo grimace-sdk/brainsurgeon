@@ -170,11 +170,11 @@ About 3,500 C lines for about 1,600 JS lines, in about 14 files under `nkgen/`. 
 Little-endian, all offsets from the start of the file, all records 4-byte aligned.
 
 ```
-header (64 bytes)
+header (72 bytes)
   magic            "NKGENPAK"
   format           u32   1
   length           u32   whole file
-  crc32            u32   of bytes 16 to length
+  crc32            u32   of bytes 20 to length
   release          u32   string offset: brainsurgeon version
   strings          u32   offset, u32 length
   images           u32   offset, u32 count
@@ -195,13 +195,13 @@ profile (16 bytes)
   id               u32   string offset
   first_operation  u32
   operation_count  u32
-  flags            u32
+  flags            u32   0
 
 operation (16 bytes)
-  kind             u32   module_file, module_rom, registry, word_patch, a7300_display, card_file, card_file_rom
-  name             u32   string offset: module name or card path
+  kind             u32   1 module_file, 2 module_rom, 3 registry, 4 word_patch, 5 a7300_display, 6 card_file, 7 card_file_rom
+  name             u32   string offset: module name, card path, "registry" or "a7300-display"
   blob             u32   index
-  argument         u32   kind-specific
+  argument         u32   0
 
 blob (12 bytes)
   offset           u32
@@ -209,17 +209,18 @@ blob (12 bytes)
   crc32            u32
 ```
 
-Blob contents by kind:
+Strings are ASCII and zero-terminated. Equal blobs are stored once. Structured blobs are u32 words, with strings as pak string offsets:
 
 | Kind | Blob |
 | --- | --- |
-| `module_file` | The DLL: from `inputs` (checked against its pinned SHA-256) or `binaries/pwa7300` (`gwes.dll`, `ceshell.dll`, checked against the SHA-256 in its README) |
-| `card_file` | A file copied to the card as is: `explorer.exe`, `braincrypt.dll`, `brainras.dll`, `brainsip.dll`, `brain-control.cpl` |
-| `module_rom`, `card_file_rom` | ROM module name, spare sections, import redirect tables (from, to, ordinal or name, new name) and `patchBytes` (offset, original, replacement), in fixed records |
-| `registry` | Registry operations in order: (hive, key) or (hive, key, name, type, value). Made from the profile `.reg` files and the `Software\Brain` model keys that `modelRegistry` writes, so the release tool owns the text parsing |
-| `word_patch` | Module name and (address, original, replacement) words; `purpose` kept for log lines |
+| `module_file`, `card_file` | The file: from `inputs` (checked against its pinned SHA-256), `binaries/` (checked against the SHA-256 in its README) or the build |
+| `module_rom`, `card_file_rom` | module, spare sections, redirect count, patch count; redirects (from, to, first import, import count); imports (ordinal or `ffffffff`, name or 0, new name); patches (offset, length, original and replacement as offsets in the blob, purpose); then the patch bytes |
+| `registry` | count; entries (kind 0 key or 1 value, hive, key, name, type 1 or 4, value, source). `value` is the dword or a string. `source` 1 or 2 takes the string from the matched image's device or description, for the `Software\Brain` model keys |
+| `word_patch` | module, count; words (address, original, replacement, purpose) |
 | `a7300_display` | `a7300-display.bin` |
-| skip list | Module names, file names, tested image SHA-256s, minimum span |
+| skip list | minimum span, module count, file count, tested image count; module names, file names; tested SHA-256s, 32 bytes each. Every tested image must have a profile, so the generator hashes only images whose length a profile lists |
+
+Each profile has one `registry` operation: its `.reg` files, parsed at release, then the model keys.
 
 Operation order follows `profiles.json`, which fixes the order of sections and span carving and so the output bytes.
 

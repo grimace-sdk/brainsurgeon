@@ -92,6 +92,7 @@ node tools/make-boot-nkp.mjs --image nk-slot-B.bin --build out --card /path/to/c
 - `tools/bmp-diff.py`, `tools/bmp-contact-sheet.py`: display diagnostics. Compare two screenshots, or lay screenshots out on one sheet.
 - `tools/lib/`: CE ROM image, registry, LZX and `boot.nkp` code, shared by the command-line tools and the web page.
 - `tools/make-boot-nkp.mjs`: makes `boot.nkp` and the card files from a CE image.
+- `tools/make-nkgen-pak.mjs`: makes `nkgen.pak`, the inputs for the [on-device generator](docs/on-device-generation.md), from the profiles; `--describe` prints one.
 - `profiles/`: per-device drivers, registry additions and patches.
 - `binaries/`: `explorer.exe` for every model and the A7300 `gwes.dll` and `ceshell.dll`, shipped as built.
 - `web/`: the patch maker page.

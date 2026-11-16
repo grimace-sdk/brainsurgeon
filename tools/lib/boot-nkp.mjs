@@ -1,6 +1,6 @@
 import { check, crc32, encodeLatin1, encodeUtf16le, readU32, sha256Hex, writeU32 } from './bytes.mjs';
 import { parseFlatRegistry } from './flat-registry.mjs';
-import { applyRegFile, readRegistry, setRegistryValue, writeRegistry } from './registry-edit.mjs';
+import { applyRegEntries, parseRegFile, readRegistry, setRegistryValue, writeRegistry } from './registry-edit.mjs';
 import { a7300DisplayImageSha256s, a7300DisplayRecords } from './a7300-display.mjs';
 import { debugLogCode, debugLogRecords, oemGlobalWriteDebugStringOffset } from './debug-log.mjs';
 import { wordPatchRecords } from './word-patch.mjs';
@@ -13,7 +13,7 @@ const filesEntrySize = 28;
 const sectorSize = 512;
 const codeAlignment = 32;
 const align = (value, alignment) => Math.ceil(value / alignment) * alignment;
-export async function makeBootNkp({ contents, slot, bstart, skipList, skip = 'auto', a7300Display = null, debugLog = null, debugLogAddress, moduleReplacements = [], registryAdditions = null, wordPatches = [] }) {
+export async function makeBootNkp({ contents, slot, bstart, skipList, skip = 'auto', a7300Display = null, debugLog = null, debugLogAddress, moduleReplacements = [], registryAdditions = null, registryEntries = null, wordPatches = [] }) {
     const source = imageFromDumpOrSlot(contents, slot);
     const bytes = source.bytes;
     const image = openImage(bytes);
@@ -96,10 +96,11 @@ export async function makeBootNkp({ contents, slot, bstart, skipList, skip = 'au
     };
 
     const replacements = [...moduleReplacements];
-    if (registryAdditions) {
+    const entries = registryEntries ?? (registryAdditions ? parseRegFile(registryAdditions) : null);
+    if (entries) {
         const keys = readRegistry(readFileContents(image, findFile(image, 'default.fdf')));
         setRegistryValue(keys, 2, 'init', 'Launch50', 1, 'bstart.exe');
-        applyRegFile(keys, registryAdditions);
+        applyRegEntries(keys, entries);
         replacements.push({ name: 'default.fdf', contents: writeRegistry(keys) });
     }
 

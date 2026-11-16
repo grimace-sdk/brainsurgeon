@@ -158,6 +158,8 @@ Debug Agent switches the Brain's USB port away from mass storage while it runs. 
 
 U-Boot reads `pwsh2-boot/nk-LENGTH/boot.nkp`, LENGTH being the image length in 8 lowercase hex digits (`nk-01d4aebc` for the PW-SH2's slot B), and falls back to `pwsh2-boot/boot.nkp`. `load` paths are relative to the folder the bundle came from.
 
+`make-boot-nkp.mjs --folder crc` names the folder `nk-CRC`, CRC being the image identity: a CRC-32 of the ROM header and its module and file tables, in 8 lowercase hex digits (`nk-f10da829` for the PW-SH2's slot B). It is for U-Boot with the [on-device generator](on-device-generation.md).
+
 Text. Offsets, lengths and bytes are hex.
 
 ```
