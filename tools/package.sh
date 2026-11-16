@@ -10,7 +10,7 @@ trap 'rm -rf "$stage"' EXIT
 package=$stage/$name
 card=$package/card
 
-mkdir -p "$card/pwsh2-boot/Windows" "$package/tools/lib"
+mkdir -p "$card/pwsh2-boot" "$package/tools/lib"
 cp "$build/edsa2exe.bin" "$card/EDSA2EXE.BIN"
 cp "$build/edsa2exe.bin" "$card/EDSA1EXE.BIN"
 node "$repository/tools/make-edsa2cfg.mjs" "$card/EDSA2CFG.BIN" 0xffffffff 0x22 > /dev/null
@@ -22,11 +22,11 @@ fi
 if [ -f "$build/edsh4exe.bin" ]; then
     cp "$build/edsh4exe.bin" "$card/EDSH4EXE.BIN"
 fi
-cp "$build/autorotate.exe" "$build/crashlog.exe" "$card/pwsh2-boot/"
-: > "$card/pwsh2-boot/dump-nk"
+cp "$build/autorotate.exe" "$build/crashlog.exe" "$build/nkgen.bin" "$card/pwsh2-boot/"
+node "$repository/tools/make-nkgen-pak.mjs" --build "$build" --output "$card/pwsh2-boot/nkgen.pak" --release "$version" > /dev/null
 cp -R "$repository/card/pwsh2-boot/." "$card/pwsh2-boot/"
 tab=$(printf '\t')
-node "$repository/tools/profile-files.mjs" --card | while IFS=$tab read -r path file; do
+node "$repository/tools/profile-files.mjs" --shared | while IFS=$tab read -r path file; do
     case "$file" in
         build/*) source="$build/${file#build/}" ;;
         *) source="$repository/$file" ;;
@@ -41,6 +41,7 @@ cp "$repository/tools/make-boot-nkp.mjs" "$repository/tools/skip-modules.json" "
 cp "$repository"/tools/lib/*.mjs "$package/tools/lib/"
 cp "$repository/README.md" "$repository/LICENSE" "$package/"
 cp -R "$repository/docs" "$package/docs"
+find "$package" \( -name '._*' -o -name .DS_Store \) -exec rm -f {} +
 (cd "$package" && find . -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum > SHA256SUMS)
 rm -f "$build/$name.zip"
 (cd "$stage" && find "$name" | sort | zip -q -X -@ "$build/$name.zip")

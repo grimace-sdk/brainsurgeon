@@ -91,11 +91,14 @@ jobs:
         run: |
           listing=$(unzip -Z1 "${{ steps.package.outputs.zip }}")
           for path in EDSA2EXE.BIN EDSA2CFG.BIN EDSA1EXE.BIN EDSA1CFG.BIN EDNA3EXE.BIN EDNA3CFG.BIN EDSH4EXE.BIN \
-            pwsh2-boot/pwsh2/launch.txt pwsh2-boot/pwsh2/explorer.exe pwsh2-boot/pwa7300/launch.txt pwsh2-boot/pwa7300/explorer.exe \
-            pwsh2-boot/Keymap.exe pwsh2-boot/pwsh2/Windows/StartUp/Keymap.lnk pwsh2-boot/pwa7300/Windows/StartUp/Keymap.lnk \
-            pwsh2-boot/debug/debugmgr.exe pwsh2-boot/debug/usbserial.dll; do
+            pwsh2-boot/nkgen.bin pwsh2-boot/nkgen.pak \
+            pwsh2-boot/pwsh2/launch.txt pwsh2-boot/pwsb1/launch.txt pwsh2-boot/pwsh4/launch.txt pwsh2-boot/pwa7300/launch.txt \
+            pwsh2-boot/Windows/brain-control.cpl pwsh2-boot/Keymap.exe pwsh2-boot/debug/debugmgr.exe pwsh2-boot/debug/usbserial.dll; do
             echo "$listing" | grep -qx "[^/]*/card/$path"
           done
+          if echo "$listing" | grep -E '/card/(.*/)?\._|/card/pwsh2-boot/dump-nk$'; then
+            exit 1
+          fi
       - uses: actions/upload-artifact@v7
         with:
           name: brainsurgeon

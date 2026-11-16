@@ -2,10 +2,9 @@ import { readFileSync } from 'node:fs';
 
 const definition = JSON.parse(readFileSync(new URL('../profiles/profiles.json', import.meta.url), 'utf8'));
 
-if (process.argv[2] === '--card') {
+if (process.argv[2] === '--shared') {
     const cardFiles = new Map();
-    const entries = [...definition.profiles.flatMap((profile) => profile.cardFiles ?? []), ...definition.sharedCardFiles ?? []];
-    for (const entry of entries) if (entry.file) cardFiles.set(entry.path, entry.file);
+    for (const entry of definition.sharedCardFiles ?? []) if (entry.file) cardFiles.set(entry.path, entry.file);
     console.log([...cardFiles].sort(([first], [second]) => first.localeCompare(second)).map(([path, file]) => `${path}\t${file}`).join('\n'));
 } else {
     const paths = new Set(['build/bstart.exe', 'profiles/profiles.json']);
