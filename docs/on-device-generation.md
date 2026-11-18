@@ -432,7 +432,7 @@ section words ymu818_wavdev.dll=skipped: expected bytes differ at line 3
 | `bundle` | `generated` (made this boot), `cached` (`nk-CRC` with `cache.txt`), `existing` (any bundle with no `cache.txt`), `failed` (generation failed and nothing else was found), `none` (no bundle, unpatched CE) |
 | `folder` | Bundle folder used |
 | `generator`, `release` | `nkgen.bin` version and pak release; empty when not used |
-| `uboot` | The U-Boot build's `CONFIG_SHARP_WINCE_MODEL`: `pwsh2` (PW-SH2 and PW-SB1), `pwa7300`, `pwsh4` |
+| `uboot` | The U-Boot build's `CONFIG_SHARP_WINCE_MODEL`: `pwsh2` (PW-SH2 and PW-SB1), `pwa7300`, `pwsh3`, `pwsh4` |
 | `error` | Generation or load error message, else empty |
 | `step NAME` | Generator step result, on generated boots and copied from `cache.txt` on cached ones. `step skip` says when the skip list was checked against a different image |
 | `section NAME` | `applied`, or `skipped:` and the applier's reason |
@@ -461,7 +461,7 @@ bstart (`ce/boot-status.c`) reads `\Storage Card\pwsh2-boot\boot-status.txt` onc
 
 ## One Card, Several Models
 
-A release card boots the PW-SH2, PW-SB1, PW-SH4 and PW-A7300 (and PW-G5300). Each model's EBOOT runs its own U-Boot (`EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSH4EXE.BIN`, `EDNA3EXE.BIN`), built from one u-boot-brain commit. Everything else this design adds is shared or keyed so it cannot collide:
+A release card boots the PW-SH2, PW-SB1, PW-SH4 and PW-A7300 (and PW-G5300). Each model's EBOOT runs its own U-Boot (`EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSA3EXE.BIN`, `EDSH4EXE.BIN`, `EDNA3EXE.BIN`), built from one u-boot-brain commit. Everything else this design adds is shared or keyed so it cannot collide:
 
 | Item | Shared or keyed | How |
 | --- | --- | --- |

@@ -4,7 +4,7 @@ Boot Sharp's Windows CE straight into a program of your choice, such as a deskto
 
 You need:
 
-- A Sharp Brain with a U-Boot in the release: PW-SH2, the ED-SA1 models (PW-SB1, PW-SH1, PW-HC4, PW-SJ1), PW-SH4, PW-A7300 or PW-G5300. See [Models](models.md) for which are tested.
+- A Sharp Brain with a U-Boot in the release: PW-SH2, the ED-SA1 models (PW-SB1, PW-SH1, PW-HC4, PW-SJ1), PW-SH3 (PW-SA3), PW-SH4, PW-A7300 or PW-G5300. See [Models](models.md) for which are tested.
 - A microSD card with a FAT32 first partition. It can be the card you already use.
 - A computer with a card reader.
 - The latest [release](https://github.com/grimace-sdk/brainsurgeon/releases) zip. Check its files against `SHA256SUMS`.
@@ -16,6 +16,7 @@ Copy everything in the zip's `card/` folder to the root of the card. It includes
 ```
 EDSA2CFG.BIN, EDSA2EXE.BIN          PW-SH2
 EDSA1CFG.BIN, EDSA1EXE.BIN          PW-SB1, PW-SH1, PW-HC4, PW-SJ1
+EDSA3CFG.BIN, EDSA3EXE.BIN          PW-SH3, PW-SA3
 EDSH4EXE.BIN                        PW-SH4
 EDNA3CFG.BIN, EDNA3EXE.BIN          PW-A7300 and PW-G5300
 pwsh2-boot/nkgen.bin                the patch generator
@@ -27,6 +28,7 @@ pwsh2-boot/Windows/brain-control.cpl
 pwsh2-boot/debug/
 pwsh2-boot/pwsh2/launch.txt
 pwsh2-boot/pwsb1/launch.txt
+pwsh2-boot/pwsh3/launch.txt
 pwsh2-boot/pwsh4/launch.txt
 pwsh2-boot/pwa7300/launch.txt
 ```
@@ -79,7 +81,7 @@ Make every Brain's bundle with the same release as the card. bstart comes from t
 
 ## 4. Choose What to Start
 
-bstart reads the Brain's profile from `HKLM\Software\Brain` `Profile` (`Model` with the punctuation removed if there is no `Profile`): `pwsh2`, `pwsb1`, `pwsh4` or `pwa7300`, the last for the PW-G5300 too. It reads `pwsh2-boot/PROFILE/launch.txt`, and `pwsh2-boot/launch.txt` if that is missing or the Brain has no profile.
+bstart reads the Brain's profile from `HKLM\Software\Brain` `Profile` (`Model` with the punctuation removed if there is no `Profile`): `pwsh2`, `pwsb1`, `pwsh3`, `pwsh4` or `pwa7300`, the last for the PW-G5300 too. It reads `pwsh2-boot/PROFILE/launch.txt`, and `pwsh2-boot/launch.txt` if that is missing or the Brain has no profile.
 
 The release card has a `launch.txt` in each profile folder that starts Explorer from the same folder. A Brain without a profile needs a `launch.txt` of your own. Write it as UTF-8 or plain ASCII text:
 
@@ -147,7 +149,7 @@ Most apps follow a rotation. Some, such as Pocket Paint, do not handle being res
 
 ## Undo
 
-Delete the Brain's U-Boot file (`EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSH4EXE.BIN` or `EDNA3EXE.BIN`) from the card, or remove the card. The Brain then boots exactly as stock. To boot Sharp's dictionary once, choose **CE stock** in the menu. To keep the menu but boot CE unpatched every time, create an empty `pwsh2-boot/no-nkgen` and delete `pwsh2-boot/boot.nkp` and the `pwsh2-boot/nk-*` folders.
+Delete the Brain's U-Boot file (`EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSA3EXE.BIN`, `EDSH4EXE.BIN` or `EDNA3EXE.BIN`) from the card, or remove the card. The Brain then boots exactly as stock. To boot Sharp's dictionary once, choose **CE stock** in the menu. To keep the menu but boot CE unpatched every time, create an empty `pwsh2-boot/no-nkgen` and delete `pwsh2-boot/boot.nkp` and the `pwsh2-boot/nk-*` folders.
 
 ## Problems
 
