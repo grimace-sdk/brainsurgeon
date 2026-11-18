@@ -1,0 +1,6 @@
+program=\Storage Card\pwsh2-boot\pwsh3\explorer.exe
+arguments=
+wait-for-window=
+restart-keyboard=yes
+restart-shortcut=yes
+wallpaper=
