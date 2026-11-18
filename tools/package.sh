@@ -19,6 +19,10 @@ if [ -f "$build/edna3exe.bin" ]; then
     cp "$build/edna3exe.bin" "$card/EDNA3EXE.BIN"
     node "$repository/tools/make-edsa2cfg.mjs" "$card/EDNA3CFG.BIN" 0 0x02 > /dev/null
 fi
+if [ -f "$build/edsa3exe.bin" ]; then
+    cp "$build/edsa3exe.bin" "$card/EDSA3EXE.BIN"
+    cp "$card/EDSA2CFG.BIN" "$card/EDSA3CFG.BIN"
+fi
 if [ -f "$build/edsh4exe.bin" ]; then
     cp "$build/edsh4exe.bin" "$card/EDSH4EXE.BIN"
 fi

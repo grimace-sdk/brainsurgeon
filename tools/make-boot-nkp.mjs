@@ -8,7 +8,7 @@ import { parseWordPatch } from './lib/word-patch.mjs';
 const usage = `Usage: node tools/make-boot-nkp.mjs --image NK_IMAGE [--card CARD_DIRECTORY | --output boot.nkp] [--folder length|crc] [--build DIRECTORY | --pak nkgen.pak] [--root DIRECTORY] [--bstart BSTART_EXE] [--slot A|B] [--skip | --no-skip] [--no-profile] [--a7300-display HOOK_BIN] [--debug-log HOOK_BIN [--debug-log-address PHYSICAL]] [--replace-module NAME=DLL]... [--registry ADDITIONS.reg]... [--patch-words PATCH.json]...
 
 NK_IMAGE is pwsh2-boot/nk-slot-<slot>.bin written by U-Boot, or a full eMMC dump (then --slot picks the slot).
-An image listed in profiles/profiles.json gets that device's drivers and registry additions (PW-SH2, PW-SB1, PW-SH4, PW-A7300, PW-G5300). --no-profile adds only bstart and the options given.
+An image listed in profiles/profiles.json gets that device's drivers and registry additions (PW-SH2, PW-SB1, PW-SH3 (PW-SA3), PW-SH4, PW-A7300, PW-G5300). --no-profile adds only bstart and the options given.
 --card writes boot.nkp and everything it loads into CARD_DIRECTORY, the card's root: pwsh2-boot/nk-LENGTH/ and the profile's card files. --output (default boot.nkp) writes boot.nkp and its modules/ folder only.
 --folder crc names the bundle folder by the image identity CRC (nk-CRC), for U-Boot with the on-device generator; the default is the image length (nk-LENGTH).
 --build is the folder with bstart.exe, a7300-display.bin and the CE programs (default build/ beside tools/; out/ after sh build.sh out). --bstart overrides bstart.exe.
