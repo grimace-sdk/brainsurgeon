@@ -10,6 +10,10 @@ One card works in every Brain below, and you can move it between them: each mode
 - U-Boot `EDSA1EXE.BIN`, profile `pwsb1`.
 - U-Boot tested. The profile and volume patch have not been booted.
 
+**PW-SH3** and **PW-SA3**
+- U-Boot `EDSA3EXE.BIN`, profile `pwsh3`. Details in [PW-SH3 and PW-SA3](pwsh3.md).
+- Tested on one PW-SA3: boot menu keys, patched boot, the Explorer desktop across the panel and touch.
+
 **PW-SH4**
 - U-Boot `EDSH4EXE.BIN`, profile `pwsh4`. Details in [PW-SH4](pwsh4.md).
 - Tested on CE V100: boot menu, patched boot, display, backlight, touch and Explorer.
@@ -24,8 +28,8 @@ One card works in every Brain below, and you can move it between them: each mode
 **PW-A7400**
 - Unsupported. Its EBOOT also runs `EDNA3EXE.BIN`, which is built for the PW-A7300. Remove `EDNA3EXE.BIN` from a card used in a PW-A7400.
 
-**PW-SH3, PW-SH5, PW-SH6, PW-SH7**
-- No CE U-Boot. u-boot-brain has Linux configurations for them (`EDSA3EXE.BIN`, `EDSA5EXE.BIN`, `EDSA6EXE.BIN`, `EDSA7EXE.BIN`).
+**PW-SH5, PW-SH6, PW-SH7**
+- No CE U-Boot. u-boot-brain has Linux configurations for them (`EDSA5EXE.BIN`, `EDSA6EXE.BIN`, `EDSA7EXE.BIN`).
 
 **PW-A5300, PW-A7200 and other models**
 - No U-Boot.

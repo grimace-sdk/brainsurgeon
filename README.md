@@ -45,6 +45,10 @@ Build apps for it with [grimace](https://github.com/grimace-sdk/grimace), the Wi
 **PW-SB1** ([search Buyee](https://buyee.jp/item/crosssearch/query/PW-SB1?price_max=4000&sort=new&fc=6afb06460b5eb))
 - As the PW-SH2, with Sharp's five-level backlight.
 
+**PW-SH3 and PW-SA3** ([search Buyee](https://buyee.jp/item/crosssearch/query/PW-SH3?price_max=4000&sort=new&fc=6afb06460b5eb))
+- Windows CE at 848x480 on a 480x854 panel, as on the PW-SH4.
+- Touchscreen and 100 backlight levels. Keymap and rotation are not set up yet ([PW-SH3 and PW-SA3](docs/pwsh3.md)).
+
 **PW-SH4** ([search Buyee](https://buyee.jp/item/crosssearch/query/PW-SH4?price_max=4000&sort=new&fc=6afb06460b5eb))
 - Windows CE at 848x480 on a 480x854 panel.
 - Touchscreen, 100 backlight levels, and Keymap with the PW-SH2's layers and a keyboard map.
@@ -72,7 +76,7 @@ For images or set-ups the generator can't handle, `tools/make-boot-nkp.mjs` make
 
 ## Building
 
-`build.sh` builds one model's U-Boot and the CE programs in a pinned Debian container. `BRAIN_MODEL` picks the model: `pwsh2` (the default, `edsa2exe.bin`), `pwa7300` (`edna3exe.bin`) or `pwsh4` (`edsh4exe.bin`). Run it on Linux with Docker:
+`build.sh` builds one model's U-Boot and the CE programs in a pinned Debian container. `BRAIN_MODEL` picks the model: `pwsh2` (the default, `edsa2exe.bin`), `pwa7300` (`edna3exe.bin`), `pwsh3` (`edsa3exe.bin`) or `pwsh4` (`edsh4exe.bin`). Run it on Linux with Docker:
 
 ```sh
 sh build.sh out
@@ -101,7 +105,7 @@ node tools/make-boot-nkp.mjs --image nk-slot-B.bin --build out --card /path/to/c
 - `tools/make-edsa2cfg.mjs`: makes `EDSA2CFG.BIN`, `EDSA1CFG.BIN` and `EDNA3CFG.BIN`.
 - `tools/nk/`: CE ROM image tools: `list-nk.mjs` lists modules and files, `dump-registry.mjs` prints the ROM registry, `rom-layout-svg.mjs` draws the layout after `boot.nkp`.
 
-Model notes: [Models](docs/models.md), [PW-SH4](docs/pwsh4.md), [PW-A7300](docs/a7300.md).
+Model notes: [Models](docs/models.md), [PW-SH3 and PW-SA3](docs/pwsh3.md), [PW-SH4](docs/pwsh4.md), [PW-A7300](docs/a7300.md).
 
 ## How It Works
 
@@ -117,11 +121,11 @@ Model notes: [Models](docs/models.md), [PW-SH4](docs/pwsh4.md), [PW-A7300](docs/
 
 `boot.nkp` is made from each Brain's own CE image: Sharp shipped more than one CE version. On a Brain's first boot from the card, U-Boot runs the [on-device generator](docs/on-device-generation.md) (`pwsh2-boot/nkgen.bin`) on the image in RAM with the release's drivers and profiles (`nkgen.pak`), and saves `boot.nkp` and its files in `pwsh2-boot/nk-<id>/`. `tools/make-boot-nkp.mjs` makes the same files from a copy of the image. U-Boot checks every patch against the image, so a `boot.nkp` for a different image changes nothing.
 
-All three recognise the PW-SH2, PW-SB1, PW-SH4, PW-A7300 and PW-G5300 images listed in [profiles/profiles.json](profiles/README.md) and add that Brain's drivers: [brain-display](https://github.com/grimace-sdk/brain-display), [brain-drivers](https://github.com/grimace-sdk/brain-drivers), registry additions and the Explorer desktop. The A7300 also gets its display patch, keyboard, sub screen driver and Control Panel.
+All three recognise the PW-SH2, PW-SB1, PW-SH3 (PW-SA3), PW-SH4, PW-A7300 and PW-G5300 images listed in [profiles/profiles.json](profiles/README.md) and add that Brain's drivers: [brain-display](https://github.com/grimace-sdk/brain-display), [brain-drivers](https://github.com/grimace-sdk/brain-drivers), registry additions and the Explorer desktop. The A7300 also gets its display patch, keyboard, sub screen driver and Control Panel.
 
 ## Licence
 
 [MIT](LICENSE), except:
 
-- The U-Boot builds (`EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSH4EXE.BIN`, `EDNA3EXE.BIN`): GPL-2.0+, as [U-Boot](https://github.com/brain-hackers/u-boot-brain). Its complete source is the [grimace-sdk/u-boot-brain](https://github.com/grimace-sdk/u-boot-brain) commit pinned in `build.sh`.
+- The U-Boot builds (`EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSA3EXE.BIN`, `EDSH4EXE.BIN`, `EDNA3EXE.BIN`): GPL-2.0+, as [U-Boot](https://github.com/brain-hackers/u-boot-brain). Its complete source is the [grimace-sdk/u-boot-brain](https://github.com/grimace-sdk/u-boot-brain) commit pinned in `build.sh`.
 - The menu's Tux icon in the U-Boot build: the Linux kernel's Tux logo, by Larry Ewing (lewing@isc.tamu.edu) with The GIMP.

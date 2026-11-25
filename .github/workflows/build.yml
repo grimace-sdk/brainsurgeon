@@ -36,7 +36,7 @@ jobs:
   build:
     strategy:
       matrix:
-        model: [pwsh2, pwa7300, pwsh4]
+        model: [pwsh2, pwa7300, pwsh3, pwsh4]
         run: [first, second]
     runs-on: ubuntu-latest
     steps:
@@ -67,7 +67,7 @@ jobs:
           path: builds
       - name: Check the two builds of each model are identical
         run: |
-          for model in pwsh2:edsa2exe.bin pwa7300:edna3exe.bin pwsh4:edsh4exe.bin; do
+          for model in pwsh2:edsa2exe.bin pwa7300:edna3exe.bin pwsh3:edsa3exe.bin pwsh4:edsh4exe.bin; do
             for file in u-boot.bin ${model#*:} bstart.exe autorotate.exe crashlog.exe \
               brain-control.cpl braincrypt.dll brainras.dll brainsip.dll keymap.exe debugmgr.exe usbserial.dll a7300-display.bin nkgen.bin; do
               cmp builds/build-${model%%:*}-first/$file builds/build-${model%%:*}-second/$file
@@ -77,8 +77,9 @@ jobs:
       - name: Combine the models
         run: |
           cp -R builds/build-pwsh2-first builds/release
-          cp builds/build-pwa7300-first/edna3exe.bin builds/build-pwsh4-first/edsh4exe.bin builds/release/
+          cp builds/build-pwa7300-first/edna3exe.bin builds/build-pwsh3-first/edsa3exe.bin builds/build-pwsh4-first/edsh4exe.bin builds/release/
           cp builds/build-pwa7300-first/build-info.txt builds/release/build-info-pwa7300.txt
+          cp builds/build-pwsh3-first/build-info.txt builds/release/build-info-pwsh3.txt
           cp builds/build-pwsh4-first/build-info.txt builds/release/build-info-pwsh4.txt
       - name: Fetch inputs
         env:
@@ -90,9 +91,9 @@ jobs:
       - name: Check the card
         run: |
           listing=$(unzip -Z1 "${{ steps.package.outputs.zip }}")
-          for path in EDSA2EXE.BIN EDSA2CFG.BIN EDSA1EXE.BIN EDSA1CFG.BIN EDNA3EXE.BIN EDNA3CFG.BIN EDSH4EXE.BIN \
+          for path in EDSA2EXE.BIN EDSA2CFG.BIN EDSA1EXE.BIN EDSA1CFG.BIN EDNA3EXE.BIN EDNA3CFG.BIN EDSA3EXE.BIN EDSA3CFG.BIN EDSH4EXE.BIN \
             pwsh2-boot/nkgen.bin pwsh2-boot/nkgen.pak \
-            pwsh2-boot/pwsh2/launch.txt pwsh2-boot/pwsb1/launch.txt pwsh2-boot/pwsh4/launch.txt pwsh2-boot/pwa7300/launch.txt \
+            pwsh2-boot/pwsh2/launch.txt pwsh2-boot/pwsb1/launch.txt pwsh2-boot/pwsh3/launch.txt pwsh2-boot/pwsh4/launch.txt pwsh2-boot/pwa7300/launch.txt \
             pwsh2-boot/Windows/brain-control.cpl pwsh2-boot/Keymap.exe pwsh2-boot/debug/debugmgr.exe pwsh2-boot/debug/usbserial.dll; do
             echo "$listing" | grep -qx "[^/]*/card/$path"
           done

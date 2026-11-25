@@ -114,6 +114,24 @@
       ]
     },
     {
+      "id": "pwsh3",
+      "device": "PW-SH3",
+      "images": [
+        { "sha256": "96af6ef1c3c04018b69bade9ff2882fc335147f8fd4e13fa5aac4be7c4f9d34b", "length": 30721008, "description": "PW-SA3 slot B" }
+      ],
+      "modules": [
+        { "name": "board.dll", "file": "inputs/brain-drivers-pwsh4/board.dll" },
+        { "name": "ddraw_mx28.dll", "file": "inputs/brain-display-pwsh4.dll" },
+        { "name": "touchraw.dll", "file": "inputs/brain-drivers-pwsh4/touchraw.dll" },
+        { "name": "backlight.dll", "file": "inputs/brain-drivers-pwsh4/backlight.dll" }
+      ],
+      "registry": ["profiles/registry/board.reg", "profiles/registry/touch-areas-pwsh4.reg"],
+      "wordPatches": ["profiles/patches/sx8650-width-pwsh4.json"],
+      "cardFiles": [
+        { "path": "pwsh2-boot/pwsh3/explorer.exe", "file": "binaries/explorer.exe" }
+      ]
+    },
+    {
       "id": "pwa7300",
       "device": "PW-A7300",
       "images": [

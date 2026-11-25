@@ -2,7 +2,7 @@
 set -eu
 
 UBOOT_REPOSITORY=https://github.com/grimace-sdk/u-boot-brain.git
-UBOOT_COMMIT=85b4753fd469b59b0c2a0a88c641ba8190e82ffd
+UBOOT_COMMIT=5aef949e16bb38cb9f6388bd889e455c59484150
 NKBIN_MAKER_REPOSITORY=https://github.com/brain-hackers/nkbin_maker.git
 NKBIN_MAKER_COMMIT=4a97a4e8074cec12ac8989bcfcab9b9f7d47156d
 GRIMACE_REPOSITORY=https://github.com/grimace-sdk/grimace.git
@@ -17,6 +17,7 @@ BRAIN_MODEL=${BRAIN_MODEL:-pwsh2}
 case "$BRAIN_MODEL" in
     pwsh2) defconfig=pwsh2_ce_defconfig; boot_file=edsa2exe.bin ;;
     pwa7300) defconfig=pwa7300_ce_defconfig; boot_file=edna3exe.bin ;;
+    pwsh3) defconfig=pwsh3_ce_defconfig; boot_file=edsa3exe.bin ;;
     pwsh4) defconfig=pwsh4_ce_defconfig; boot_file=edsh4exe.bin ;;
     *) echo "Unsupported BRAIN_MODEL: $BRAIN_MODEL" >&2; exit 2 ;;
 esac

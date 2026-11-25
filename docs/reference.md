@@ -6,8 +6,8 @@ All on the first (FAT32) partition.
 
 | File | Purpose |
 | --- | --- |
-| `EDSA2CFG.BIN`, `EDSA1CFG.BIN`, `EDNA3CFG.BIN` | EBOOT boot config: run the U-Boot file from the card |
-| `EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSH4EXE.BIN`, `EDNA3EXE.BIN` | U-Boot, one build per platform ([EBOOT Files](#eboot-files)) |
+| `EDSA2CFG.BIN`, `EDSA1CFG.BIN`, `EDSA3CFG.BIN`, `EDNA3CFG.BIN` | EBOOT boot config: run the U-Boot file from the card |
+| `EDSA2EXE.BIN`, `EDSA1EXE.BIN`, `EDSA3EXE.BIN`, `EDSH4EXE.BIN`, `EDNA3EXE.BIN` | U-Boot, one build per platform ([EBOOT Files](#eboot-files)) |
 | `pwsh2-boot/nkgen.bin`, `nkgen.pak` | The patch generator and its inputs: drivers, profiles, registry additions and patches for every model ([boot.nkp](#bootnkp)) |
 | `pwsh2-boot/nk-CRC/` | Patches for one CE image, CRC being its identity: `boot.nkp`, the drivers it loads in `modules/`, and for a generated bundle `cache.txt` and `nkgen.log` ([Generated Bundles](#generated-bundles)) |
 | `pwsh2-boot/nk-LENGTH/boot.nkp` | Patches for one CE image of LENGTH bytes (8 hex digits), made by earlier releases and `make-boot-nkp.mjs`, with the drivers it loads in `modules/` |
@@ -34,7 +34,7 @@ All on the first (FAT32) partition.
 | `pwsh2-boot/PROFILE/debug.txt` | Whether bstart starts Debug Agent, written by Brain Control |
 | `uEnv.txt`, kernel, device tree | Brainux, for the Linux entry ([menu.txt](#menutxt)) |
 
-`PROFILE` is the Brain's profile id from `HKLM\Software\Brain` `Profile`, which every recognised bundle sets: `pwsh2`, `pwsb1`, `pwsh4` or `pwa7300` (also the PW-G5300). Without `Profile`, bstart uses `Model` lowercased with the punctuation removed. Without either (an unrecognised image), bstart uses only the shared files. The `display.txt`, `sound.txt`, `power.txt` and `debug.txt` settings are read from `pwsh2-boot/` when the profile folder has none, as earlier releases wrote them; Brain Control saves them to the profile folder.
+`PROFILE` is the Brain's profile id from `HKLM\Software\Brain` `Profile`, which every recognised bundle sets: `pwsh2`, `pwsb1`, `pwsh3`, `pwsh4` or `pwa7300` (also the PW-G5300). Without `Profile`, bstart uses `Model` lowercased with the punctuation removed. Without either (an unrecognised image), bstart uses only the shared files. The `display.txt`, `sound.txt`, `power.txt` and `debug.txt` settings are read from `pwsh2-boot/` when the profile folder has none, as earlier releases wrote them; Brain Control saves them to the profile folder.
 
 Shared by every model: `pwsh2-boot/Windows/`, `pwsh2-boot/Programs/`, `pwsh2-boot/debug/`, `autorotate.exe`, `crashlog.exe`, `nkgen.bin`, `nkgen.pak`, `boot-status.txt`, the markers, and these logs:
 
@@ -57,6 +57,7 @@ EBOOT looks for these files under its Sharp platform name:
 | --- | --- | --- | --- |
 | ED-SA2 | PW-SH2 | `EDSA2CFG.BIN`, `EDSA2EXE.BIN` | `pwsh2_ce_defconfig` |
 | ED-SA1 | PW-SB1, PW-SH1, PW-HC4, PW-SJ1 | `EDSA1CFG.BIN`, `EDSA1EXE.BIN`, the same contents as the ED-SA2 files (tested on a PW-SB1) | `pwsh2_ce_defconfig` |
+| ED-SA3 | PW-SH3, PW-SA3 | `EDSA3CFG.BIN`, `EDSA3EXE.BIN`, the ED-SA2 config (tested on a PW-SA3) ([PW-SH3 and PW-SA3](pwsh3.md)) | `pwsh3_ce_defconfig` |
 | ED-SH4 | PW-SH4 | `EDSH4EXE.BIN`. No config file: EBOOT runs it without one, and its config format differs ([PW-SH4](pwsh4.md)) | `pwsh4_ce_defconfig` |
 | ED-NA3 | PW-A7300, PW-G5300 | `EDNA3CFG.BIN` (flags `0x02` only, the file tested on the PW-A7300), `EDNA3EXE.BIN` | `pwa7300_ce_defconfig` |
 
@@ -234,13 +235,13 @@ The menu is the `brainmenu` command, run at start-up on every model. It shows th
 
 Without `menu.txt`, the menu has the two Windows CE entries and starts **Windows CE** after 10 seconds. Any key stops the countdown. If an entry fails to start, the menu comes back with the U-Boot entry and no countdown.
 
-| Key | PW-SH2, PW-SB1, PW-SH1, PW-HC4, PW-SJ1 | PW-SH4 | PW-A7300, PW-G5300 |
-| --- | --- | --- | --- |
-| Previous, next | Arrows | Arrows | Arrows |
-| Start | Enter, Space | Enter (決定), Space | Enter |
-| Show the U-Boot entry | Back or Search (Escape) | Back (戻る), or any of these keys held at power-on | The key that sends the PW-SH2's Back or Search code, if any (not yet tested) |
+| Key | PW-SH2, PW-SB1, PW-SH1, PW-HC4, PW-SJ1 | PW-SH3, PW-SA3 | PW-SH4 | PW-A7300, PW-G5300 |
+| --- | --- | --- | --- | --- |
+| Previous, next | Arrows | Arrows | Arrows | Arrows |
+| Start | Enter, Space | Enter, Space | Enter (決定), Space | Enter |
+| Show the U-Boot entry | Back or Search (Escape) | Back (戻る), or any of these keys held at power-on (not yet tested) | Back (戻る), or any of these keys held at power-on | The key that sends the PW-SH2's Back or Search code, if any (not yet tested) |
 
-Over a serial connection, the arrow keys, Enter and Escape do the same. The PW-SH4 matrix keys are taken from Brainux's key maps, and the PW-A7300 keys are the PW-SH2's key codes; `uboot.log` records each key the menu receives.
+Over a serial connection, the arrow keys, Enter and Escape do the same. The PW-SH3 and PW-SH4 matrix keys are taken from Brainux's key maps, and the PW-A7300 keys are the PW-SH2's key codes; `uboot.log` records each key the menu receives.
 
 Choosing **U-Boot** gives the console. On the PW-SH2 it is shown on the screen. The Brain's keyboard only sends the arrow keys, Enter, Space, Escape and Backspace in U-Boot, so the console is mainly useful over a serial connection. On the other models the console is on the serial port only.
 
@@ -259,7 +260,7 @@ Choosing **U-Boot** gives the console. On the PW-SH2 it is shown on the screen. 
 
 ### menu.txt
 
-U-Boot reads `pwsh2-boot/PROFILE/menu.txt`, or `pwsh2-boot/menu.txt` if the model's folder has none. PROFILE is fixed by the U-Boot build: `pwsh2` for the PW-SH2 and the ED-SA1 models (PW-SB1, PW-SH1, PW-HC4, PW-SJ1), `pwsh4` for the PW-SH4 and `pwa7300` for the PW-A7300 and PW-G5300. Up to 4 KB, one `key=value` per line, `#` starts a comment line. Lines U-Boot cannot use are ignored and counted in `uboot.log`.
+U-Boot reads `pwsh2-boot/PROFILE/menu.txt`, or `pwsh2-boot/menu.txt` if the model's folder has none. PROFILE is fixed by the U-Boot build: `pwsh2` for the PW-SH2 and the ED-SA1 models (PW-SB1, PW-SH1, PW-HC4, PW-SJ1), `pwsh3` for the PW-SH3 and PW-SA3, `pwsh4` for the PW-SH4 and `pwa7300` for the PW-A7300 and PW-G5300. Up to 4 KB, one `key=value` per line, `#` starts a comment line. Lines U-Boot cannot use are ignored and counted in `uboot.log`.
 
 | Key | Meaning |
 | --- | --- |
